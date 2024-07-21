@@ -1,0 +1,28 @@
+.header {
+  background-color: var(--white) !important;
+  border-bottom: 1px solid var(--light-grey);
+
+  &-wrapper {
+    height: 100%;
+  }
+}
+
+.logo {
+  width: 72px;
+  height: 100%;
+  object-fit: contain;
+}
+
+.search {
+  width: 33%;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.menu {
+  &-item {
+    color: var(--black) !important;
+  }
+}

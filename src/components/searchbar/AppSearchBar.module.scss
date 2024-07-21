@@ -1,0 +1,16 @@
+.form {
+  width: 100%;
+  &-item {
+    margin-bottom: 0 !important;
+
+    &-input {
+      background: var(--light-grey) !important;
+      border: none !important;
+      color: var(--grey);
+
+      .icon {
+        color: var(--grey);
+      }
+    }
+  }
+}
