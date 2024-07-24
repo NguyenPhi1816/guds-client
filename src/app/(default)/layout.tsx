@@ -1,8 +1,10 @@
 import { Metadata } from "next";
-import AppHeader from "@/components/header/Header";
-import { Content } from "antd/es/layout/layout";
 import SessionModal from "@/components/modal/sessionModal";
 import { Layout } from "antd";
+import AppHeader from "@/components/header";
+import Sidebar from "@/components/sidebar";
+import { Content } from "antd/es/layout/layout";
+import Wrapper from "@/components/wrapper";
 
 export const metadata: Metadata = {
   title: "GUDS - Trang chủ",
@@ -15,13 +17,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Layout hasSider={true} style={{ height: "100vh" }}>
-      {/* <Sidebar /> */}
-      <Layout>
-        <AppHeader />
-        <Content>{children}</Content>
-        <SessionModal />
-      </Layout>
+    <Layout style={{ minHeight: "100vh", backgroundColor: "var(--white)" }}>
+      <AppHeader />
+      <Wrapper>
+        <Layout style={{ minHeight: "100%" }}>
+          <Sidebar />
+          <Content>{children}</Content>
+        </Layout>
+      </Wrapper>
+      <SessionModal />
     </Layout>
   );
 }

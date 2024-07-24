@@ -1,12 +1,12 @@
 import { SessionProvider } from "next-auth/react";
 import { FC, ReactNode } from "react";
 
-interface IProvider {
+interface INextAuthProvider {
   children: ReactNode;
 }
 
-const Provider: FC<IProvider> = ({ children }) => {
+const NextAuthProvider: FC<INextAuthProvider> = ({ children }) => {
   return <SessionProvider>{children}</SessionProvider>;
 };
 
-export default Provider;
+export default NextAuthProvider;

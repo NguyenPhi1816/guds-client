@@ -1,9 +1,31 @@
 .header {
+  padding: 0 !important;
+  padding-bottom: 0.5rem !important;
+  height: auto !important;
+  max-height: var(--app-header-height);
   background-color: var(--white) !important;
   border-bottom: 1px solid var(--light-grey);
 
-  &-wrapper {
-    height: 100%;
+  &-top {
+    min-height: 4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &-bottom {
+    height: 1rem;
+    width: 70%;
+
+    & > * {
+      margin-right: 1rem !important;
+    }
+
+    &-link {
+      display: block;
+      height: 100%;
+      line-height: 100%;
+      color: var(--black);
+      font-weight: 600;
+    }
   }
 }
 
@@ -24,5 +46,16 @@
 .menu {
   &-item {
     color: var(--black) !important;
+  }
+}
+
+.skeleton {
+  &-avatar {
+    display: flex !important;
+    align-items: center;
+  }
+
+  &-input {
+    height: 1rem !important;
   }
 }

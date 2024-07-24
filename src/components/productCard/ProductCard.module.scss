@@ -1,0 +1,39 @@
+.cover {
+  position: relative;
+  border-bottom: 1px solid var(--light-grey);
+
+  &-btn {
+    margin: 0.5rem;
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    z-index: 2;
+
+    &-filled {
+      color: var(--light-yellow) !important;
+    }
+  }
+
+  &-img {
+    width: var(--product-card-image-width) !important;
+    height: var(--product-card-image-height) !important;
+    object-fit: contain;
+  }
+}
+
+.price {
+  color: var(--black);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.bottom {
+  margin-top: 1rem;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  &-text {
+    font-size: 0.75rem;
+    color: var(--grey);
+  }
+}

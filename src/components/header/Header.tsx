@@ -10,6 +10,7 @@ import {
   Flex,
   Layout,
   MenuProps,
+  Skeleton,
   Space,
 } from "antd";
 import Link from "next/link";
@@ -19,10 +20,20 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { getSession, signOut, useSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import Wrapper from "../wrapper";
-import { useEffect, useState } from "react";
-import { Session } from "next-auth";
+import { useQuery } from "@tanstack/react-query";
+import { getAllCategories } from "@/services/category";
+import useMessage from "antd/es/message/useMessage";
+import { getFavoriteProducts } from "@/services/cookie";
+import {
+  CART_QUERY_KEY,
+  CATEGORIES_QUERY_KEY,
+  FAVORITE_PRODUCT_QUERY_KEY,
+  SESSION_QUERY_KEY,
+} from "@/services/queryKeys";
+import { getCart } from "@/services/cart";
+import { useRouter } from "next/navigation";
 
 const { Header } = Layout;
 
@@ -48,23 +59,51 @@ const items: MenuProps["items"] = [
 ];
 
 const AppHeader = () => {
+  const router = useRouter();
   const fallbackUserAvatarUrl = "/images/no-user-image.webp";
+  const [messageApi, contextHolder] = useMessage();
 
-  const [session, setSession] = useState<Session | null>(null);
+  const { data, isLoading, isError } = useQuery({
+    queryFn: async () => await getAllCategories(),
+    queryKey: [CATEGORIES_QUERY_KEY],
+  });
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      const sessionData = await getSession();
-      setSession(sessionData);
-    };
-    fetchSession();
-  }, []);
+  const {
+    data: favoriteProducts,
+    isLoading: favoriteProductsLoading,
+    isError: favoriteProductsError,
+  } = useQuery({
+    queryFn: async () => await getFavoriteProducts(),
+    queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
+  });
+
+  const {
+    data: cart,
+    isLoading: cartLoading,
+    isError: cartError,
+  } = useQuery({
+    queryFn: async () => await getCart(),
+    queryKey: [CART_QUERY_KEY],
+  });
+
+  const {
+    data: session,
+    isLoading: sessionLoading,
+    isError: sessionError,
+  } = useQuery({
+    queryFn: async () => await getSession(),
+    queryKey: [SESSION_QUERY_KEY],
+  });
+
+  if (isError || favoriteProductsError || cartError || sessionError) {
+    messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
+  }
 
   return (
     <Header className={cx("header")}>
       <Wrapper>
         <Flex
-          className={cx("header-wrapper")}
+          className={cx("header-top")}
           justify="space-between"
           align="center"
         >
@@ -78,40 +117,83 @@ const AppHeader = () => {
           </div>
           <Space size={"large"}>
             <Flex align="center">
-              <Button shape="circle" type="text">
-                <Badge count={5} size="small">
+              <Button
+                onClick={() => router.push("/cart")}
+                shape="circle"
+                type="text"
+              >
+                <Badge showZero count={cart ? cart.length : 0} size="small">
                   <ShoppingCartOutlined className={cx("icon")} />
                 </Badge>
               </Button>
             </Flex>
             <Flex align="center">
-              <Button shape="circle" type="text">
-                <Badge count={5} size="small">
+              <Button
+                onClick={() => router.push("/favorite")}
+                shape="circle"
+                type="text"
+              >
+                <Badge
+                  showZero
+                  count={
+                    favoriteProducts && favoriteProducts.data
+                      ? favoriteProducts.data.length
+                      : "0"
+                  }
+                  size="small"
+                >
                   <HeartOutlined className={cx("icon")} />
                 </Badge>
               </Button>
             </Flex>
-            {session && session.user ? (
-              <Dropdown menu={{ items }} placement="bottomRight">
-                <Avatar
-                  shape="circle"
-                  src={
-                    session.user.image
-                      ? session.user.image
-                      : fallbackUserAvatarUrl
-                  }
-                />
-              </Dropdown>
-            ) : (
+            {!session && sessionLoading ? (
+              <Skeleton.Avatar active className={cx("skeleton-avatar")} />
+            ) : !session ? (
               <Flex align="center">
                 <Button href="/login" shape="circle" type="text">
                   <UserOutlined className={cx("icon")} />
                 </Button>
               </Flex>
+            ) : (
+              session.user && (
+                <Dropdown menu={{ items }} placement="bottomRight">
+                  <Avatar
+                    shape="circle"
+                    src={
+                      session.user.image
+                        ? session.user.image
+                        : fallbackUserAvatarUrl
+                    }
+                  />
+                </Dropdown>
+              )
             )}
           </Space>
         </Flex>
+        <Flex className={cx("header-bottom")}>
+          {isLoading
+            ? new Array(5)
+                .fill(0)
+                .map((item, index) => (
+                  <Skeleton.Input
+                    key={index}
+                    active
+                    size="small"
+                    className={cx("skeleton-input")}
+                  />
+                ))
+            : data?.slice(0, 5).map((category) => (
+                <Link
+                  className={cx("header-bottom-link")}
+                  key={category.id}
+                  href={`/category/${category.slug}`}
+                >
+                  {category.name}
+                </Link>
+              ))}
+        </Flex>
       </Wrapper>
+      {contextHolder}
     </Header>
   );
 };

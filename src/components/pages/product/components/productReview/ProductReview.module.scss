@@ -1,0 +1,69 @@
+.overall {
+  margin: 0.5rem 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--light-yellow);
+  border-radius: 0.5rem;
+
+  &-number {
+    font-size: 1.5rem !important;
+    font-weight: 600;
+    color: var(--light-yellow) !important;
+    line-height: normal !important;
+  }
+
+  &-average-number {
+    margin-right: 0.25rem;
+    font-size: 2rem !important;
+    font-weight: 600;
+    color: var(--light-yellow) !important;
+    line-height: normal !important;
+  }
+
+  &-average-rating {
+    margin-top: 0.5rem !important;
+  }
+
+  &-btn {
+    margin-left: 2rem;
+
+    &-item {
+      &:hover {
+        border: 1px solid var(--light-yellow) !important;
+        color: var(--light-yellow) !important;
+      }
+
+      &-checked {
+        border: 1px solid var(--light-yellow) !important;
+        color: var(--light-yellow) !important;
+      }
+    }
+  }
+}
+
+.review {
+  width: 80%;
+}
+
+.content {
+  &-name {
+    font-weight: 600;
+  }
+
+  &-rating {
+    font-size: 0.875rem !important;
+  }
+
+  &-created-at,
+  &-variant {
+    font-size: 0.75rem !important;
+    color: var(--grey) !important;
+  }
+
+  &-divider {
+    background-color: var(--grey) !important;
+  }
+
+  &-comment {
+    margin-top: 1rem;
+  }
+}

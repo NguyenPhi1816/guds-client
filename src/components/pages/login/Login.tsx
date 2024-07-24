@@ -16,6 +16,10 @@ import { LockOutlined, PhoneOutlined, LeftOutlined } from "@ant-design/icons";
 import { LoginRequest } from "@/types/auth";
 import { doCredentialLogin } from "@/actions/auth";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getSession } from "next-auth/react";
+import { SESSION_QUERY_KEY } from "@/services/queryKeys";
 
 const cx = classNames.bind(styles);
 const phoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
@@ -23,8 +27,19 @@ const phoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
 const { Title, Text } = Typography;
 
 export default function Login() {
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  const redirect = searchParams.get("redirect") ?? "/";
+
+  const mutation = useMutation({
+    mutationFn: () => getSession(),
+    onSuccess: (data) => {
+      queryClient.setQueryData([SESSION_QUERY_KEY], data);
+    },
+  });
 
   const onFinish = async (values: LoginRequest) => {
     const formData = new FormData();
@@ -32,7 +47,8 @@ export default function Login() {
     formData.append("password", values.password);
     try {
       setLoading(true);
-      await doCredentialLogin(formData);
+      await doCredentialLogin(formData, redirect);
+      mutation.mutate();
     } catch (error) {
       if (error instanceof Error) {
         messageApi.open({

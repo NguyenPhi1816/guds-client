@@ -2,7 +2,8 @@ import { Inter } from "next/font/google";
 import "./index.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Metadata } from "next";
-import Provider from "@/components/provider";
+import ReactQueryProvider from "@/utils/reactQueryProvider/ReactQueryProvider";
+import NextAuthProvider from "@/utils/nextAuthProvider/NextAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Provider>
-          <AntdRegistry>{children}</AntdRegistry>
-        </Provider>
+        <AntdRegistry>
+          <NextAuthProvider>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+          </NextAuthProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

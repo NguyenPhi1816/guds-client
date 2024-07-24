@@ -1,0 +1,34 @@
+.sider {
+  padding-top: 2rem;
+  width: 20% !important;
+  max-width: 20% !important;
+  min-height: calc(100vh - var(--app-header-height));
+  flex: 0 0 20% !important;
+  background-color: var(--white) !important;
+}
+
+.menu {
+  width: 100% !important;
+  height: 100%;
+
+  &-skeleton {
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0.75rem;
+
+    &-input {
+      margin-left: 1rem;
+      width: 80% !important;
+      height: 1rem !important;
+
+      & > span {
+        margin: 0 !important;
+      }
+    }
+
+    &-button {
+      width: 1rem !important;
+      min-width: 1rem !important;
+      height: 1rem !important;
+    }
+  }
+}

@@ -5,12 +5,17 @@
 }
 
 :root {
-  --black: #010101;
+  --black: #121212;
   --white: #ffffff;
   --grey: #a4a4a4;
   --light-grey: #f3f3f3;
   --light-orange: #fef0ea;
   --light-yellow: #edcf5d;
+
+  --app-header-height: 6rem;
+  --product-card-width: 13rem;
+  --product-card-image-width: 13rem;
+  --product-card-image-height: 13rem;
 }
 
 html *::-webkit-scrollbar {
@@ -56,4 +61,27 @@ html *::-webkit-scrollbar-track {
 
 .ant-input-outlined:focus-within {
   box-shadow: 0 0 0 2px var(--light-orange) !important;
+}
+
+.ant-menu-submenu-title {
+  margin: 0 !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0.25rem 0.75rem !important;
+  height: fit-content !important;
+}
+
+.ant-menu-title-content {
+  color: var(--black);
+  font-weight: 600;
+}
+
+.ant-menu-submenu-arrow {
+  color: var(--black) !important;
+}
+
+.ant-menu-item {
+  margin: 0 !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0.25rem 2rem !important;
+  height: fit-content !important;
 }

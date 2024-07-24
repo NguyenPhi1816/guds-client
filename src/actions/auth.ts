@@ -3,7 +3,10 @@
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
-export const doCredentialLogin = async (formData: FormData) => {
+export const doCredentialLogin = async (
+  formData: FormData,
+  redirectTo: string
+) => {
   const phoneNumber = formData.get("phoneNumber");
   const password = formData.get("password");
   try {
@@ -11,7 +14,7 @@ export const doCredentialLogin = async (formData: FormData) => {
       phoneNumber,
       password,
       redirect: true,
-      redirectTo: "/",
+      redirectTo: redirectTo,
     });
   } catch (error) {
     if (error instanceof AuthError) {
