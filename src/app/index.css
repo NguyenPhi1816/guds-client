@@ -85,3 +85,13 @@ html *::-webkit-scrollbar-track {
   padding: 0.25rem 2rem !important;
   height: fit-content !important;
 }
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--light-yellow) !important;
+  border-color: var(--light-yellow) !important;
+}
+
+.ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
+  background-color: var(--light-yellow) !important;
+  border-color: var(--light-yellow) !important;
+}

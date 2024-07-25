@@ -4,6 +4,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Metadata } from "next";
 import ReactQueryProvider from "@/utils/reactQueryProvider/ReactQueryProvider";
 import NextAuthProvider from "@/utils/nextAuthProvider/NextAuthProvider";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <AntdRegistry>
           <NextAuthProvider>
-            <ReactQueryProvider>{children}</ReactQueryProvider>
+            <ReactQueryProvider>
+              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            </ReactQueryProvider>
           </NextAuthProvider>
         </AntdRegistry>
       </body>

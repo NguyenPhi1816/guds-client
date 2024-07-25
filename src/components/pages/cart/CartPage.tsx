@@ -2,7 +2,7 @@
 import styles from "./CartPage.module.scss";
 import classNames from "classnames/bind";
 
-import React, { FocusEvent, useState } from "react";
+import React, { FocusEvent, useEffect, useState } from "react";
 import {
   Table,
   Image,
@@ -21,21 +21,53 @@ import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Cart } from "@/types/cart";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CART_QUERY_KEY } from "@/services/queryKeys";
-import { getCart } from "@/services/cart";
+import { deleteCart, getCart, updateCartQuantity } from "@/services/cart";
+import { CartQuantityUpdateType } from "@/constant/enum/cartQuantityUpdateType";
+import useMessage from "antd/es/message/useMessage";
+import { useRouter } from "next/navigation";
+import qs from "query-string";
 
 const { Title, Text } = Typography;
 
 const cx = classNames.bind(styles);
 
 const CartPage: React.FC = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [selectedProducts, setSelectedProducts] = useState<Cart[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
+  const [messageApi, contextHolder] = useMessage();
 
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getCart(),
     queryKey: [CART_QUERY_KEY],
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (params: {
+      productVariantId: number;
+      quantity: number;
+      type: CartQuantityUpdateType;
+    }) =>
+      updateCartQuantity(params.productVariantId, params.quantity, params.type),
+    onSuccess: (data) => {
+      queryClient.setQueryData([CART_QUERY_KEY], data);
+    },
+    onError: () => {
+      messageApi.error("Cập nhật giỏ hàng thất bại");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (productVariantId: number) => deleteCart(productVariantId),
+    onSuccess: (data) => {
+      queryClient.setQueryData([CART_QUERY_KEY], data);
+    },
+    onError: () => {
+      messageApi.error("Xóa giỏ hàng thất bại");
+    },
   });
 
   const handleSelect = (product: Cart, checked: boolean) => {
@@ -59,43 +91,70 @@ const CartPage: React.FC = () => {
     setSelectAll(checked);
   };
 
-  const handleIncreaseQuantity = () => {
-    // const newValue = quantity + 1;
-    // if (variant && newValue > variant.quantity) {
-    //   messageApi.error("Đã đạt số lượng tối đa");
-    //   return;
-    // }
-    // setQuantity(newValue);
+  useEffect(() => {
+    if (selectAll) {
+      setSelectedProducts(data || []);
+    }
+  }, [selectAll, data]);
+
+  const handleIncreaseQuantity = (productVariantId: number) => {
+    updateMutation.mutate({
+      quantity: 1,
+      productVariantId,
+      type: CartQuantityUpdateType.INCREMENT,
+    });
   };
 
-  const handleDecreseQuantity = () => {
-    // const newValue = quantity - 1;
-    // if (newValue < 1) {
-    //   return;
-    // }
-    // setQuantity(newValue);
+  const handleDecreseQuantity = (productVariantId: number) => {
+    updateMutation.mutate({
+      quantity: 1,
+      productVariantId,
+      type: CartQuantityUpdateType.DECREMENT,
+    });
   };
 
-  const handleSetQuantity = (e: FocusEvent<HTMLInputElement, Element>) => {
-    // const num = Number.parseInt(e.target.value);
-    // if (variant && num) {
-    //   if (num > variant.quantity) {
-    //     setQuantity(variant.quantity);
-    //     messageApi.error("Đã đạt số lượng tối đa");
-    //     return;
-    //   }
-    //   if (num < 1) {
-    //     setQuantity(1);
-    //     return;
-    //   }
-    //   setQuantity(num);
-    // }
+  const handleSetQuantity = (
+    previousValue: number,
+    newValue: number,
+    productVariantId: number
+  ) => {
+    if (previousValue > newValue) {
+      const diff = previousValue - newValue;
+      updateMutation.mutate({
+        quantity: diff,
+        productVariantId,
+        type: CartQuantityUpdateType.DECREMENT,
+      });
+    } else if (previousValue < newValue) {
+      const diff = newValue - previousValue;
+      updateMutation.mutate({
+        quantity: diff,
+        productVariantId,
+        type: CartQuantityUpdateType.INCREMENT,
+      });
+    }
+  };
+
+  const handleDelete = (productVariantId: number) => {
+    deleteMutation.mutate(productVariantId);
+  };
+
+  const handleCheckout = () => {
+    if (selectedProducts.length === 0) {
+      messageApi.error("Vui lòng chọn sản phẩm");
+      return;
+    }
+    const queryString = qs.stringify({
+      products: JSON.stringify(selectedProducts),
+    });
+    router.push(`/checkout?${queryString}`);
   };
 
   const columns = [
     {
       title: (
         <Checkbox
+          className={cx("checkbox")}
           checked={selectAll}
           onChange={(e: CheckboxChangeEvent) =>
             handleSelectAll(e.target.checked)
@@ -154,20 +213,22 @@ const CartPage: React.FC = () => {
       render: (quantity: number, record: Cart) => (
         <Space className={cx("quantity")}>
           <Button
-            onClick={handleDecreseQuantity}
+            onClick={() => handleDecreseQuantity(record.productVariantId)}
             className={cx("quantity-item")}
           >
             <MinusOutlined />
           </Button>
           <InputNumber
-            className={cx("quantity-item")}
-            width={32}
+            className={cx("quantity-item", "quantity-item-input")}
             controls={false}
             value={quantity}
-            onBlur={(e) => handleSetQuantity(e)}
+            onBlur={(e) => {
+              const newValue = Number.parseInt(e.target.value);
+              handleSetQuantity(quantity, newValue, record.productVariantId);
+            }}
           />
           <Button
-            onClick={handleIncreaseQuantity}
+            onClick={() => handleIncreaseQuantity(record.productVariantId)}
             className={cx("quantity-item")}
           >
             <PlusOutlined />
@@ -185,8 +246,12 @@ const CartPage: React.FC = () => {
     {
       title: "Thao tác",
       key: "action",
-      render: () => (
-        <Button danger type="text">
+      render: (cart: Cart) => (
+        <Button
+          danger
+          type="text"
+          onClick={() => handleDelete(cart.productVariantId)}
+        >
           <DeleteOutlined />
           Xóa
         </Button>
@@ -267,13 +332,20 @@ const CartPage: React.FC = () => {
                 <Text strong>{totalPrice.toLocaleString()} VND</Text>
               </Row>
               <Divider />
-              <Button type="primary" block size="large">
+              <Button
+                type="primary"
+                block
+                size="large"
+                className={cx("checkout-btn")}
+                onClick={handleCheckout}
+              >
                 Thanh toán
               </Button>
             </div>
           </>
         )}
       </div>
+      {contextHolder}
     </PageWrapper>
   );
 };

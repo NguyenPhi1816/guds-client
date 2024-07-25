@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 
 export default auth((req) => {
   const { nextUrl } = req;
-  const pathname = "/" + nextUrl.pathname.split("/")[0];
+  const pathname = "/" + nextUrl.pathname.split("/")[1];
 
   const isAuthenticated = !!req.auth;
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
