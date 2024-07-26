@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import ReactQueryProvider from "@/utils/reactQueryProvider/ReactQueryProvider";
 import NextAuthProvider from "@/utils/nextAuthProvider/NextAuthProvider";
 import { Suspense } from "react";
+import SessionModal from "@/components/modal/sessionModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +28,10 @@ export default function RootLayout({
         <AntdRegistry>
           <NextAuthProvider>
             <ReactQueryProvider>
-              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+              <Suspense fallback={<div>Loading...</div>}>
+                <SessionModal />
+                {children}
+              </Suspense>
             </ReactQueryProvider>
           </NextAuthProvider>
         </AntdRegistry>

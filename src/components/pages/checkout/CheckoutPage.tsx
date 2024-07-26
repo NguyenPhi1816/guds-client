@@ -14,28 +14,77 @@ import {
   Space,
   Flex,
   Radio,
+  Input,
 } from "antd";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { Cart } from "@/types/cart";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useMessage from "antd/es/message/useMessage";
 import { useRouter } from "next/navigation";
 import { PaymentMethod } from "@/constant/enum/paymentMethod";
+import { createVNPayPaymentURL } from "@/services/payment";
+import { getSession } from "next-auth/react";
+import { SESSION_QUERY_KEY } from "@/services/queryKeys";
+import OrderReceiverModal from "@/components/modal/orderReceiverModal";
+import { CreateOrderRequest, OrderDetailRequest } from "@/types/order";
+import { createOrder } from "@/services/order";
 
 const { Title, Text } = Typography;
 
 const cx = classNames.bind(styles);
 
 const CheckoutPage: React.FC = () => {
+  const {
+    data: session,
+    isLoading: sessionLoading,
+    isError: sessionError,
+  } = useQuery({
+    queryFn: async () => await getSession(),
+    queryKey: [SESSION_QUERY_KEY],
+  });
+
+  const createVNPayMutation = useMutation({
+    mutationFn: (params: {
+      amount: number;
+      orderId: number;
+      orderDescription: string;
+    }) =>
+      createVNPayPaymentURL(
+        params.amount,
+        params.orderId,
+        params.orderDescription
+      ),
+    onSuccess: (data) => router.replace(data.paymentUrl),
+  });
+
+  const createOrderMutation = useMutation({
+    mutationFn: (createOrderRequest: CreateOrderRequest) =>
+      createOrder(createOrderRequest),
+    onSuccess: (data) => handlePayment(data.payment.totalPrice, data.order.id),
+  });
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [isLoading, setLoading] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const [data, setData] = useState<Cart[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     PaymentMethod.CASH
   );
+  const [name, setName] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [address, setAddess] = useState<string>("");
+  const [note, setNote] = useState<string>("");
   const [messageApi, contextHolder] = useMessage();
+
+  useEffect(() => {
+    if (session && session.user) {
+      setName(session.user.name);
+      setPhoneNumber(session.user.phoneNumber);
+      setAddess(session.user.address);
+    }
+  }, [session]);
 
   useEffect(() => {
     setLoading(true);
@@ -49,7 +98,55 @@ const CheckoutPage: React.FC = () => {
     setLoading(false);
   }, [searchParams]);
 
-  const handleCheckout = () => {};
+  const handleReceiverInfoChange = (
+    name: string,
+    phoneNumber: string,
+    address: string
+  ) => {
+    setName(name);
+    setPhoneNumber(phoneNumber);
+    setAddess(address);
+  };
+
+  const handleCheckout = () => {
+    const orderDetails: OrderDetailRequest[] = data.map((item) => ({
+      productVariantId: item.productVariantId,
+      quantity: item.quantity,
+    }));
+    const request: CreateOrderRequest = {
+      note: note,
+      paymentMethod: paymentMethod,
+      paymentDate: null,
+      transactionId: null,
+      orderDetails: orderDetails,
+      receiverName: name,
+      receiverPhoneNumber: phoneNumber,
+      receiverAddress: address,
+    };
+    createOrderMutation.mutate(request);
+  };
+
+  const handlePayment = (amount: number, orderId: number) => {
+    switch (paymentMethod) {
+      case PaymentMethod.CASH: {
+        router.push(`/checkout/payment-status?status=success`);
+        break;
+      }
+      case PaymentMethod.VNPAY: {
+        createVNPayMutation.mutate({
+          amount,
+          orderId,
+          orderDescription: "Thanh toan don hang Guds. Ma don hang " + orderId,
+        });
+        break;
+      }
+      default: {
+        messageApi.error(
+          "Có lỗi xảy ra: Vui lòng chọn phương thức thanh toán hợp lệ"
+        );
+      }
+    }
+  };
 
   const columns = [
     {
@@ -104,62 +201,106 @@ const CheckoutPage: React.FC = () => {
   );
 
   return (
-    <PageWrapper>
-      <Title level={2}>Thanh toán</Title>
-      <div className={cx("cartPageWrapper")}>
-        {isLoading ? (
-          <div className={cx("spinner-container")}>
-            <Spin className={cx("spinner")} size="large" />
-            <Text>Đang tải dữ liệu đơn hàng</Text>
-          </div>
-        ) : (
-          <>
-            <Table
-              bordered={false}
-              className={cx("tableWrapper")}
-              columns={columns}
-              dataSource={data}
-              rowKey="productVariantId"
-              pagination={false}
-            />
-            <div className={cx("summaryWrapper")}>
-              <Title level={4}>Tổng kết đơn hàng</Title>
-              <Divider />
-              <Row className={cx("totalRow")}>
-                <Space direction="vertical">
-                  <Text strong>Phương thức thanh toán:</Text>
-                  <Radio.Group
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  >
-                    <Space direction="vertical">
-                      <Radio value={PaymentMethod.CASH}>Tiền mặt</Radio>
-                      <Radio value={PaymentMethod.VNPAY}>Ví VNPay</Radio>
-                    </Space>
-                  </Radio.Group>
-                </Space>
-              </Row>
-              <Divider />
-              <Row className={cx("totalRow")}>
-                <Text strong>Tổng cộng:</Text>
-                <Text strong>{totalPrice.toLocaleString()} VND</Text>
-              </Row>
-              <Divider />
-              <Button
-                type="primary"
-                block
-                size="large"
-                className={cx("checkout-btn")}
-                onClick={handleCheckout}
-              >
-                Thanh toán
-              </Button>
+    session &&
+    session.user && (
+      <PageWrapper style={{ paddingBottom: "4rem" }}>
+        <Title level={2}>Thanh toán</Title>
+        <div className={cx("cartPageWrapper")}>
+          {isLoading && sessionLoading ? (
+            <div className={cx("spinner-container")}>
+              <Spin className={cx("spinner")} size="large" />
+              <Text>Đang tải dữ liệu đơn hàng</Text>
             </div>
-          </>
-        )}
-      </div>
-      {contextHolder}
-    </PageWrapper>
+          ) : (
+            <Flex style={{ width: "100%" }} vertical>
+              <Flex vertical className={cx("receiver-infor")}>
+                <Title level={4}>Địa chỉ nhận hàng</Title>
+                <Flex justify="space-between" align="center">
+                  <Space direction="vertical">
+                    <Text strong>Tên: {name}</Text>
+                    <Text strong>Số điện thoại: {phoneNumber}</Text>
+                    <Text strong className={cx("receiver-infor-address")}>
+                      Địa chỉ nhận hàng: {address}
+                    </Text>
+                  </Space>
+                  <Button onClick={() => setOpen(true)}>Thay đổi</Button>
+                </Flex>
+              </Flex>
+              <Flex justify="space-between">
+                <Table
+                  bordered={false}
+                  className={cx("tableWrapper")}
+                  columns={columns}
+                  dataSource={data}
+                  rowKey="productVariantId"
+                  pagination={false}
+                />
+                <div className={cx("summaryWrapper")}>
+                  <Title level={4}>Tổng kết đơn hàng</Title>
+                  <Divider />
+                  <Row className={cx("totalRow")}>
+                    <Space direction="vertical">
+                      <Text strong>Phương thức thanh toán:</Text>
+                      <Radio.Group
+                        value={paymentMethod}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      >
+                        <Space direction="vertical">
+                          <Radio value={PaymentMethod.CASH}>Tiền mặt</Radio>
+                          <Radio value={PaymentMethod.VNPAY}>Ví VNPay</Radio>
+                        </Space>
+                      </Radio.Group>
+                    </Space>
+                  </Row>
+                  <Divider />
+                  <Row className={cx("totalRow")}>
+                    <Flex
+                      className={cx("note")}
+                      justify="space-between"
+                      align="center"
+                    >
+                      <Text className={cx("note-text")} strong>
+                        Lời nhắn:
+                      </Text>
+                      <Input
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        className={cx("note-input")}
+                        placeholder="Lưu ý cho người bán..."
+                      />
+                    </Flex>
+                  </Row>
+                  <Divider />
+                  <Row className={cx("totalRow")}>
+                    <Text strong>Tổng cộng:</Text>
+                    <Text strong>{totalPrice.toLocaleString()} VND</Text>
+                  </Row>
+                  <Divider />
+                  <Button
+                    type="primary"
+                    block
+                    size="large"
+                    className={cx("checkout-btn")}
+                    onClick={handleCheckout}
+                  >
+                    Thanh toán
+                  </Button>
+                </div>
+              </Flex>
+            </Flex>
+          )}
+        </div>
+        <OrderReceiverModal
+          open={open}
+          onSubmit={handleReceiverInfoChange}
+          onCancel={() => setOpen(false)}
+          receiverName={name}
+          receiverAddress={address}
+          receiverPhoneNumber={phoneNumber}
+        />
+        {contextHolder}
+      </PageWrapper>
+    )
   );
 };
 

@@ -112,3 +112,26 @@
   background: var(--light-yellow) !important;
   color: var(--black) !important;
 }
+
+.receiver-infor {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--light-grey);
+  border-radius: 0.5rem;
+
+  &-address {
+    color: var(--grey) !important;
+  }
+}
+
+.note {
+  width: 100% !important;
+
+  &-text {
+    margin-right: 0.5rem;
+  }
+
+  &-input {
+    width: 80% !important;
+  }
+}

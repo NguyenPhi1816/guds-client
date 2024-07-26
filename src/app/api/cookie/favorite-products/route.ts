@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const name = process.env.NEXT_PUBLIC_COOKIES_FAVORITE_PRODUCTS_NAME as string;
+const name = process.env.COOKIES_FAVORITE_PRODUCTS_NAME as string;
 
 export async function GET() {
   const favoriteProductsStr = cookies().get(name)?.value;

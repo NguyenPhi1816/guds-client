@@ -51,6 +51,8 @@ export const {
           name: profile.firstName + " " + profile.lastName,
           image: profile.image,
           email: profile.email,
+          phoneNumber: profile.phoneNumber,
+          address: profile.address,
           role: profile.role,
           status: profile.status,
           access_token: tokens.access_token,
