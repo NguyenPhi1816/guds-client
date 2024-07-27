@@ -1,0 +1,36 @@
+.container {
+  width: 100%;
+}
+
+.wrapper {
+  padding: 1rem;
+  min-width: 25rem;
+
+  &-left {
+    width: 30vw;
+  }
+}
+
+.form {
+  min-width: 35vw !important;
+
+  &-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-section {
+    padding: 0 0.25rem;
+    flex: 1;
+  }
+}
+
+.date-of-birth {
+  width: 100% !important;
+  min-width: auto !important;
+}
+
+.submit-button {
+  color: var(--black) !important;
+  background-color: var(--light-yellow) !important;
+}

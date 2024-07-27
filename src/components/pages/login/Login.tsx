@@ -4,6 +4,7 @@ import classNames from "classnames/bind";
 
 import {
   Button,
+  Checkbox,
   Flex,
   Form,
   Image,
@@ -20,6 +21,8 @@ import { useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSession } from "next-auth/react";
 import { SESSION_QUERY_KEY } from "@/services/queryKeys";
+import PageWrapper from "@/components/wrapper/PageWrapper";
+import Link from "next/link";
 
 const cx = classNames.bind(styles);
 const phoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
@@ -62,75 +65,92 @@ export default function Login() {
   };
 
   return (
-    <Flex align="center" justify="center" className={cx("container")}>
-      <Space className={cx("wrapper")} size={"large"}>
-        <Image
-          src="./images/logo.png"
-          alt="logo"
-          preview={false}
-          width={100}
-          height={50}
-        />
-        <Title>Đăng nhập</Title>
-        <Form
-          name="login"
-          onFinish={onFinish}
-          layout="vertical"
-          requiredMark="optional"
-          className={cx("form")}
-        >
-          <Form.Item
-            validateStatus=""
-            name="phoneNumber"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập số điện thoại!",
-              },
-              {
-                pattern: phoneNumberRegex,
-                message: "Số điện thoại không hợp lệ!",
-              },
-            ]}
+    <PageWrapper>
+      <Flex align="center" justify="center" className={cx("container")}>
+        <Space className={cx("wrapper")} size={"large"}>
+          <Image
+            src="./images/logo.png"
+            alt="logo"
+            preview={false}
+            width={100}
+            height={50}
+          />
+          <Title>Đăng nhập</Title>
+          <Form
+            name="login"
+            onFinish={onFinish}
+            layout="vertical"
+            requiredMark="optional"
+            className={cx("form")}
           >
-            <Input
-              prefix={<PhoneOutlined />}
-              placeholder="Số điện thoại"
-              size="large"
-            />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập mật khẩu!",
-              },
-            ]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              type="password"
-              placeholder="Mật khẩu"
-              size="large"
-              autoComplete="on"
-            />
-          </Form.Item>
-          <Form.Item style={{ marginBottom: "0px" }}>
-            <Button
-              className={cx("submit-button")}
-              block={true}
-              type="primary"
-              htmlType="submit"
-              size="large"
-              loading={loading}
+            <Form.Item
+              validateStatus=""
+              name="phoneNumber"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập số điện thoại!",
+                },
+                {
+                  pattern: phoneNumberRegex,
+                  message: "Số điện thoại không hợp lệ!",
+                },
+              ]}
             >
-              Đăng nhập
-            </Button>
-          </Form.Item>
-        </Form>
-      </Space>
-      {contextHolder}
-    </Flex>
+              <Input
+                prefix={<PhoneOutlined />}
+                placeholder="Số điện thoại"
+                size="large"
+              />
+            </Form.Item>
+            <Form.Item
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập mật khẩu!",
+                },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                type="password"
+                placeholder="Mật khẩu"
+                size="large"
+                autoComplete="on"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Flex justify="space-between">
+                <Space>
+                  <Checkbox></Checkbox>
+                  <Text>Ghi nhớ đăng nhập</Text>
+                </Space>
+                <Space>
+                  <Link href={"forgot-password"}>Quên mật khẩu</Link>
+                </Space>
+              </Flex>
+            </Form.Item>
+            <Form.Item style={{ marginBottom: "0px" }}>
+              <Button
+                className={cx("submit-button")}
+                block={true}
+                type="primary"
+                htmlType="submit"
+                size="large"
+                loading={loading}
+              >
+                Đăng nhập
+              </Button>
+            </Form.Item>
+          </Form>
+          <Space className={cx("sign-up")}>
+            <Text>Chưa có tài khoản?</Text>
+            <Link href="/signup">Đăng ký</Link>
+          </Space>
+        </Space>
+        {contextHolder}
+      </Flex>
+    </PageWrapper>
   );
 }

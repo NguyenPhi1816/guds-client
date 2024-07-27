@@ -33,6 +33,10 @@ html *::-webkit-scrollbar-track {
   background-color: rgba(0, 0, 0, 0);
 }
 
+a {
+  color: var(--light-yellow) !important;
+}
+
 .ant-menu-item {
   margin: 0 !important;
   font-weight: 600;

@@ -147,7 +147,7 @@ const CartPage: React.FC = () => {
     const queryString = qs.stringify({
       products: JSON.stringify(selectedProducts),
     });
-    router.push(`/checkout?${queryString}`);
+    router.push(`/checkout?${queryString}&from-cart=true`);
   };
 
   const columns = [

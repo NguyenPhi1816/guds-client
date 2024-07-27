@@ -33,7 +33,10 @@ const PaymentStatusPage = () => {
             </Text>
             <Space style={{ marginTop: "1rem" }}>
               <Button onClick={() => router.push("/")}>Về trang chủ</Button>
-              <Button type="primary" onClick={() => router.push("/orders")}>
+              <Button
+                type="primary"
+                onClick={() => router.push("/user/purchases")}
+              >
                 Danh sách đơn hàng
               </Button>
             </Space>
@@ -60,7 +63,10 @@ const PaymentStatusPage = () => {
             <Text>Đơn hàng đã được thanh toán thành công</Text>
             <Space style={{ marginTop: "1rem" }}>
               <Button onClick={() => router.push("/")}>Về trang chủ</Button>
-              <Button type="primary" onClick={() => router.push("/orders")}>
+              <Button
+                type="primary"
+                onClick={() => router.push("/user/purchase")}
+              >
                 Danh sách đơn hàng
               </Button>
             </Space>

@@ -24,16 +24,33 @@ import { useRouter } from "next/navigation";
 import { PaymentMethod } from "@/constant/enum/paymentMethod";
 import { createVNPayPaymentURL } from "@/services/payment";
 import { getSession } from "next-auth/react";
-import { SESSION_QUERY_KEY } from "@/services/queryKeys";
+import { CART_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
 import OrderReceiverModal from "@/components/modal/orderReceiverModal";
 import { CreateOrderRequest, OrderDetailRequest } from "@/types/order";
 import { createOrder } from "@/services/order";
+import { deleteCart } from "@/services/cart";
 
 const { Title, Text } = Typography;
 
 const cx = classNames.bind(styles);
 
 const CheckoutPage: React.FC = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const [isLoading, setLoading] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
+  const [data, setData] = useState<Cart[]>([]);
+  const [fromCart, setFromCart] = useState<boolean>(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.CASH
+  );
+  const [name, setName] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [address, setAddess] = useState<string>("");
+  const [note, setNote] = useState<string>("");
+  const [messageApi, contextHolder] = useMessage();
+
   const {
     data: session,
     isLoading: sessionLoading,
@@ -60,23 +77,26 @@ const CheckoutPage: React.FC = () => {
   const createOrderMutation = useMutation({
     mutationFn: (createOrderRequest: CreateOrderRequest) =>
       createOrder(createOrderRequest),
-    onSuccess: (data) => handlePayment(data.payment.totalPrice, data.order.id),
+    onSuccess: async (data) => {
+      if (fromCart) {
+        const deletePromises = data.orderDetails.map((orderDetail) =>
+          deleteMutation.mutateAsync(orderDetail.productVariantId)
+        );
+        await Promise.all(deletePromises);
+      }
+      return handlePayment(data.payment.totalPrice, data.order.id);
+    },
   });
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [open, setOpen] = useState<boolean>(false);
-  const [data, setData] = useState<Cart[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    PaymentMethod.CASH
-  );
-  const [name, setName] = useState<string>("");
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [address, setAddess] = useState<string>("");
-  const [note, setNote] = useState<string>("");
-  const [messageApi, contextHolder] = useMessage();
+  const deleteMutation = useMutation({
+    mutationFn: (productVariantId: number) => deleteCart(productVariantId),
+    onSuccess: (data) => {
+      queryClient.setQueryData([CART_QUERY_KEY], data);
+    },
+    onError: () => {
+      messageApi.error("Xóa giỏ hàng thất bại");
+    },
+  });
 
   useEffect(() => {
     if (session && session.user) {
@@ -89,6 +109,8 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     const productsJson = searchParams.get("products");
+    const cartId = searchParams.get("from-cart");
+    setFromCart(cartId === "true");
     if (productsJson) {
       const products = JSON.parse(productsJson);
       setData(products);
@@ -246,8 +268,12 @@ const CheckoutPage: React.FC = () => {
                         onChange={(e) => setPaymentMethod(e.target.value)}
                       >
                         <Space direction="vertical">
-                          <Radio value={PaymentMethod.CASH}>Tiền mặt</Radio>
-                          <Radio value={PaymentMethod.VNPAY}>Ví VNPay</Radio>
+                          <Radio value={PaymentMethod.CASH}>
+                            Thanh toán khi nhận hàng
+                          </Radio>
+                          <Radio value={PaymentMethod.VNPAY}>
+                            Cổng thanh toán VNPay
+                          </Radio>
                         </Space>
                       </Radio.Group>
                     </Space>

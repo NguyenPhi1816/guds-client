@@ -1,3 +1,5 @@
+import category from "@/components/pages/category";
+
 export type Category = {
   id: number;
   slug: string;
@@ -19,5 +21,10 @@ export type CategoryProduct = {
 
 export interface CategoryResponse extends Category {
   children: Category[];
+  products: CategoryProduct[];
+}
+
+export interface CategoryBySlugResponse extends Category {
+  description: string;
   products: CategoryProduct[];
 }

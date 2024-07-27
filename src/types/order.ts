@@ -50,3 +50,43 @@ export type CreateOrderRequest = {
   receiverPhoneNumber: string;
   receiverAddress: string;
 };
+
+export type OrderFullReview = {
+  id: number;
+  comment: string;
+  rating: number;
+  createdAt: string;
+  updateAt: string | null;
+};
+
+export type OrderFullDetail = {
+  id: number;
+  productName: string;
+  productImage: string;
+  optionValue: string[];
+  quantity: number;
+  price: number;
+  review: OrderFullReview | null;
+};
+
+export type OrderFullPayment = {
+  paymentMethod: string;
+  paymentDate: string | null;
+  totalPrice: number;
+  status: string;
+  transactionId: string | null;
+};
+
+export type OrderFull = {
+  id: number;
+  userId: number;
+  userName: string;
+  receiverName: string;
+  receiverPhoneNumber: string;
+  receiverAddress: string;
+  note: string;
+  createAt: string;
+  status: string;
+  orderDetails: OrderFullDetail[];
+  payment: OrderFullPayment;
+};

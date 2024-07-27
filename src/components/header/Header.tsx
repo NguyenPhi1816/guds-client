@@ -39,25 +39,6 @@ const { Header } = Layout;
 
 const cx = classNames.bind(styles);
 
-const items: MenuProps["items"] = [
-  {
-    key: "1",
-    label: (
-      <Button onClick={() => {}} type="link" className={cx("menu-item")}>
-        Đơn hàng của tôi
-      </Button>
-    ),
-  },
-  {
-    key: "2",
-    label: (
-      <Button onClick={() => signOut()} type="link" danger>
-        Đăng xuất
-      </Button>
-    ),
-  },
-];
-
 const AppHeader = () => {
   const router = useRouter();
   const fallbackUserAvatarUrl = "/images/no-user-image.webp";
@@ -98,6 +79,29 @@ const AppHeader = () => {
   if (isError || favoriteProductsError || cartError || sessionError) {
     messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
   }
+
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <Button
+          onClick={() => router.push("/user/purchases")}
+          type="link"
+          className={cx("menu-item")}
+        >
+          Đơn hàng của tôi
+        </Button>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <Button onClick={() => signOut()} type="link" danger>
+          Đăng xuất
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <Header className={cx("header")}>

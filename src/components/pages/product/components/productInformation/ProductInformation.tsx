@@ -25,13 +25,13 @@ import {
 } from "@ant-design/icons";
 import useMessage from "antd/es/message/useMessage";
 import Link from "next/link";
-import productInformation from ".";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addProductToCart } from "@/services/cart";
 import { CART_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Session } from "next-auth";
+import { Cart } from "@/types/cart";
+import qs from "query-string";
 
 const { Title, Text } = Typography;
 
@@ -201,6 +201,23 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
     }
   };
 
+  const handleCheckout = () => {
+    if (variant) {
+      const product: Cart = {
+        productVariantId: variant.id,
+        image: variant.image,
+        name: data.name,
+        optionValues: variant.optionValue.map((option) => option.value),
+        price: variant.price,
+        quantity: quantity,
+      };
+      const queryString = qs.stringify({
+        products: JSON.stringify([product]),
+      });
+      router.push(`/checkout?${queryString}`);
+    }
+  };
+
   return (
     data &&
     variant && (
@@ -313,7 +330,12 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
               <ShoppingCartOutlined />
               Thêm vào giỏ hàng
             </Button>
-            <Button size="large" type="primary" className={cx("btn-buy")}>
+            <Button
+              size="large"
+              type="primary"
+              className={cx("btn-buy")}
+              onClick={handleCheckout}
+            >
               Mua hàng
             </Button>
           </Space>

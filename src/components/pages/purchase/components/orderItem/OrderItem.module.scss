@@ -1,0 +1,29 @@
+.wrapper {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--light-grey);
+}
+
+.status {
+  color: var(--grey) !important;
+}
+
+.order-detail {
+  &-image {
+    width: 5rem;
+    height: 5rem;
+    object-fit: contain;
+  }
+
+  &-option-value {
+    font-size: 0.75rem !important;
+    color: var(--grey) !important;
+  }
+}
+
+.total {
+  font-size: 1rem !important;
+  color: var(--light-yellow) !important;
+}
