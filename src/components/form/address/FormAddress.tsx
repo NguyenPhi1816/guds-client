@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Select, Input } from "antd";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getProvince, getDistrict, getWard } from "@/services/address"; // Điều chỉnh đường dẫn nếu cần
+import { useMutation } from "@tanstack/react-query";
+import { getProvince, getDistrict, getWard } from "@/services/address"; // Adjust path if needed
 import { AddressResponse, District, Province, Ward } from "@/types/address";
 
 const { Option } = Select;
@@ -28,6 +28,7 @@ const FormAddress: React.FC<FormAddressProps> = ({
   const [district, setDistrict] = useState<string>("");
   const [ward, setWard] = useState<string>("");
   const [houseNumber, setHouseNumber] = useState<string>("");
+  const [stateInit, setStateInit] = useState<boolean>(false);
 
   // Fetch provinces using React Query
   const provinceMutation = useMutation({
@@ -57,8 +58,9 @@ const FormAddress: React.FC<FormAddressProps> = ({
       !!district &&
       !!province &&
       [houseNumber, ward, district, province].join(", ") !== defaultValue
-    )
+    ) {
       onChange([houseNumber, ward, district, province].join(", "));
+    }
   }, [houseNumber, ward, district, province]);
 
   useEffect(() => {
@@ -70,8 +72,10 @@ const FormAddress: React.FC<FormAddressProps> = ({
         setWard(parts[1]);
         setHouseNumber(parts[0]);
       }
+      setStateInit(true);
     };
-    fetcher();
+    const timerId = setTimeout(() => fetcher(), 500);
+    return () => clearTimeout(timerId);
   }, [defaultValue]);
 
   useEffect(() => handleLoadProvince(), []);
@@ -115,6 +119,8 @@ const FormAddress: React.FC<FormAddressProps> = ({
   const handleProvinceChange = (value: string) => {
     setProvince((prev) => {
       if (prev !== value) {
+        setDistrict(""); // Reset district and ward when province changes
+        setWard("");
         return value;
       }
       return prev;
@@ -124,6 +130,7 @@ const FormAddress: React.FC<FormAddressProps> = ({
   const handleDistrictChange = (value: string) => {
     setDistrict((prev) => {
       if (prev !== value) {
+        setWard(""); // Reset ward when district changes
         return value;
       }
       return prev;
@@ -131,85 +138,101 @@ const FormAddress: React.FC<FormAddressProps> = ({
   };
 
   const handleWardChange = (value: string) => {
-    setWard((prev) => {
-      if (prev !== value) {
-        return value;
-      }
-      return prev;
-    });
+    setWard((prev) => (prev !== value ? value : prev));
   };
 
   const handleHouseNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setHouseNumber(value);
+    setHouseNumber(e.target.value);
   };
 
   return (
-    <>
-      <Form.Item label="Thành phố">
-        <Select
-          value={province}
-          onChange={handleProvinceChange}
-          placeholder="Tỉnh/Thành phố"
+    stateInit && (
+      <>
+        <Form.Item
+          initialValue={province}
+          label="Tỉnh/Thành phố"
+          name="province"
+          rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố!" }]}
         >
-          {provinceData &&
-            provinceData.data &&
-            provinceData.data.map((province) => (
-              <Option
-                key={(province as Province).ProvinceID}
-                value={(province as Province).ProvinceName}
-              >
-                {(province as Province).ProvinceName}
-              </Option>
-            ))}
-        </Select>
-      </Form.Item>
-      <Form.Item label="Quận/Huyện">
-        <Select
-          value={district}
-          onChange={handleDistrictChange}
-          placeholder="Quận/huyện"
-          disabled={!province}
+          <Select
+            onChange={handleProvinceChange}
+            placeholder="Tỉnh/Thành phố"
+            size="large"
+          >
+            {provinceData &&
+              provinceData.data &&
+              provinceData.data.map((province) => (
+                <Option
+                  key={(province as Province).ProvinceID}
+                  value={(province as Province).ProvinceName}
+                >
+                  {(province as Province).ProvinceName}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          initialValue={district}
+          label="Quận/Huyện"
+          name="district"
+          rules={[{ required: true, message: "Vui lòng chọn quận/huyện!" }]}
         >
-          {districtData &&
-            districtData.data &&
-            districtData.data.map((district) => (
-              <Option
-                key={(district as District).DistrictID}
-                value={(district as District).DistrictName}
-              >
-                {(district as District).DistrictName}
-              </Option>
-            ))}
-        </Select>
-      </Form.Item>
-      <Form.Item label="Phường/Xã">
-        <Select
-          value={ward}
-          onChange={handleWardChange}
-          placeholder="Phường/xã"
-          disabled={!district}
+          <Select
+            onChange={handleDistrictChange}
+            placeholder="Quận/huyện"
+            disabled={!province}
+            size="large"
+          >
+            {districtData &&
+              districtData.data &&
+              districtData.data.map((district) => (
+                <Option
+                  key={(district as District).DistrictID}
+                  value={(district as District).DistrictName}
+                >
+                  {(district as District).DistrictName}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          initialValue={ward}
+          label="Phường/Xã"
+          name="ward"
+          rules={[{ required: true, message: "Vui lòng chọn phường/xã!" }]}
         >
-          {wardData &&
-            wardData.data &&
-            wardData.data.map((ward) => (
-              <Option
-                key={(ward as Ward).WardCode}
-                value={(ward as Ward).WardName}
-              >
-                {(ward as Ward).WardName}
-              </Option>
-            ))}
-        </Select>
-      </Form.Item>
-      <Form.Item label="Địa chỉ">
-        <Input
-          value={houseNumber}
-          onChange={handleHouseNumberChange}
-          placeholder="Nhập số nhà, tên đường..."
-        />
-      </Form.Item>
-    </>
+          <Select
+            onChange={handleWardChange}
+            placeholder="Phường/xã"
+            disabled={!district}
+            size="large"
+          >
+            {wardData &&
+              wardData.data &&
+              wardData.data.map((ward) => (
+                <Option
+                  key={(ward as Ward).WardCode}
+                  value={(ward as Ward).WardName}
+                >
+                  {(ward as Ward).WardName}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          initialValue={houseNumber}
+          label="Địa chỉ"
+          name="houseNumber"
+          rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
+        >
+          <Input
+            onChange={handleHouseNumberChange}
+            placeholder="Nhập số nhà, tên đường..."
+            size="large"
+          />
+        </Form.Item>
+      </>
+    )
   );
 };
 

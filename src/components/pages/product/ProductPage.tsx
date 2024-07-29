@@ -68,14 +68,16 @@ const ProductPage = () => {
             {
               title: (
                 <Space>
-                  <HomeOutlined />
+                  <HomeOutlined className={cx("breadcrumb-title")} />
                   <Text className={cx("breadcrumb-title")}>Trang chủ</Text>
                 </Space>
               ),
               href: "/",
             },
             ...data.categories.map((category) => ({
-              title: category.name,
+              title: (
+                <Text className={cx("breadcrumb-title")}>{category.name}</Text>
+              ),
               href: `/category/${category.slug}`,
             })),
             {

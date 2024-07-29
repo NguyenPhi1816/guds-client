@@ -41,7 +41,7 @@ const cx = classNames.bind(styles);
 
 const AppHeader = () => {
   const router = useRouter();
-  const fallbackUserAvatarUrl = "/images/no-user-image.webp";
+  const fallbackUserAvatarUrl = process.env.NEXT_PUBLIC_FALLBACK_USER_IMAGE;
   const [messageApi, contextHolder] = useMessage();
 
   const { data, isLoading, isError } = useQuery({
@@ -76,6 +76,8 @@ const AppHeader = () => {
     queryKey: [SESSION_QUERY_KEY],
   });
 
+  console.log(session);
+
   if (isError || favoriteProductsError || cartError || sessionError) {
     messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
   }
@@ -83,6 +85,18 @@ const AppHeader = () => {
   const items: MenuProps["items"] = [
     {
       key: "1",
+      label: (
+        <Button
+          onClick={() => router.push("/user/profile")}
+          type="link"
+          className={cx("menu-item")}
+        >
+          Quản lý tài khoản
+        </Button>
+      ),
+    },
+    {
+      key: "2",
       label: (
         <Button
           onClick={() => router.push("/user/purchases")}
@@ -94,7 +108,7 @@ const AppHeader = () => {
       ),
     },
     {
-      key: "2",
+      key: "3",
       label: (
         <Button onClick={() => signOut()} type="link" danger>
           Đăng xuất

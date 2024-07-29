@@ -62,7 +62,7 @@ const CategoryPage = () => {
   if (data) {
     return (
       <PageWrapper>
-        <Title>{data.name}</Title>
+        <Title>Các sản phẩm đến từ {data.name}</Title>
         <List
           grid={{ gutter: 16, column: 5 }}
           dataSource={data.products}

@@ -72,6 +72,7 @@ export const {
     },
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update") {
+        console.log(session);
         return {
           ...token,
           ...session.user,

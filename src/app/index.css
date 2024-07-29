@@ -114,3 +114,13 @@ a {
   border-color: var(--light-yellow) !important;
   color: var(--light-yellow) !important;
 }
+
+.ant-input-outlined:hover,
+.ant-select-outlined:not(.ant-select-disabled):not(
+    .ant-select-customize-input
+  ):not(.ant-pagination-size-changer):hover
+  .ant-select-selector,
+.ant-picker-outlined:hover,
+.ant-radio-wrapper:hover .ant-radio-inner {
+  border-color: var(--light-yellow) !important;
+}

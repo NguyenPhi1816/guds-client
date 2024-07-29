@@ -3,6 +3,8 @@ import {
   LoginRequest,
   LoginResponse,
   RefreshTokenResponse,
+  SignUpRequest,
+  SignUpResponse,
 } from "@/types/auth";
 import { api } from "./api";
 import { ErrorResponse } from "@/types/error";
@@ -25,6 +27,27 @@ export const authenticate = async (
 
     if ("error" in data) {
       return undefined;
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const signUp = async (
+  request: SignUpRequest
+): Promise<SignUpResponse> => {
+  try {
+    const res = await fetch(`${api}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+    const data: SignUpResponse | ErrorResponse = await res.json();
+
+    if ("error" in data) {
+      throw new Error(data.message);
     }
 
     return data;

@@ -88,6 +88,11 @@ const ReviewModal: React.FC<IReviewModal> = ({
       open={visible}
       onCancel={() => onClose()}
       footer={[
+        type === ReviewModalType.EDIT && (
+          <Button key="delete" danger>
+            Xóa đánh giá
+          </Button>
+        ),
         <Button key="submit" type="primary" onClick={handleSubmit}>
           {type === ReviewModalType.CREATE
             ? "Gửi đánh giá"

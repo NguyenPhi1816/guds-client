@@ -36,6 +36,7 @@ const { Title, Text } = Typography;
 const cx = classNames.bind(styles);
 
 const UserSidebar = () => {
+  const fallbackUserAvatarUrl = process.env.NEXT_PUBLIC_FALLBACK_USER_IMAGE;
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [messageApi, contextHolder] = useMessage();
   const router = useRouter();
@@ -117,7 +118,12 @@ const UserSidebar = () => {
     session.user && (
       <Sider className={cx("sider")}>
         <Space align="center" style={{ padding: "0.5rem 0.75rem" }}>
-          <Avatar src={session.user.image} alt={session.user.name} />
+          <Avatar
+            src={
+              session.user.image ? session.user.image : fallbackUserAvatarUrl
+            }
+            alt={session.user.name}
+          />
           <Text ellipsis strong>
             {session.user.name}
           </Text>

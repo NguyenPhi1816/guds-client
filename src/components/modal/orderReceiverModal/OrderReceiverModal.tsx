@@ -68,12 +68,16 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
         </Button>,
       ]}
     >
-      <Form name="EditReceiverInfo" layout="vertical" requiredMark="optional">
+      <Form
+        name="EditReceiverInfo"
+        initialValues={{ name, phoneNumber: receiverPhoneNumber }}
+        layout="vertical"
+        requiredMark="optional"
+      >
         <Form.Item name="name">
           <Input
             placeholder="Tên người nhận"
             size="large"
-            defaultValue={name}
             onChange={(e) => setName(e.target.value)}
           />
         </Form.Item>
@@ -81,7 +85,6 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
           <Input
             placeholder="Số điện thoại"
             size="large"
-            defaultValue={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </Form.Item>
