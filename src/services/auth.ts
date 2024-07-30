@@ -9,6 +9,7 @@ import {
 import { api } from "./api";
 import { ErrorResponse } from "@/types/error";
 import { auth } from "@/auth";
+import { SuccessResponse } from "@/types/sucess";
 
 export const authenticate = async (
   request: LoginRequest
@@ -124,3 +125,35 @@ export async function getAccessToken(): Promise<string | undefined> {
     throw error;
   }
 }
+
+export const updatePassword = async (
+  oldPassword: string,
+  newPassword: string
+): Promise<SuccessResponse> => {
+  console.log(oldPassword, newPassword);
+
+  try {
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      const res = await fetch(`${api}/auth/update-password`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
+        },
+        method: "PUT",
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+      const result: SuccessResponse | ErrorResponse = await res.json();
+
+      if ("error" in result) {
+        throw new Error(result.message);
+      }
+
+      return result;
+    } else {
+      throw new Error("No session");
+    }
+  } catch (error) {
+    throw error;
+  }
+};

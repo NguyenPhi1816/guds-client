@@ -1,4 +1,6 @@
+import UpdatePassword from "@/components/pages/updatePassword";
+
 const Page = () => {
-  return <>Password</>;
+  return <UpdatePassword />;
 };
 export default Page;

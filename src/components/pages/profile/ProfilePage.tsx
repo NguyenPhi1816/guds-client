@@ -19,12 +19,15 @@ import { useEffect, useState } from "react";
 import { UserGender } from "@/constant/enum/userGender";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PROFILE_QUERY_KEY } from "@/services/queryKeys";
-import { getProfile } from "@/services/user";
+import { getProfile, updateProfile } from "@/services/user";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
+import { uploadImages } from "@/services/upload";
+import { UpdateProfileRequest } from "@/types/user";
+import useMessage from "antd/es/message/useMessage";
 
 dayjs.extend(customParseFormat);
 
@@ -53,33 +56,71 @@ const beforeUpload = (file: FileType) => {
 };
 
 const ProfilePage = () => {
-  const [address, setAddress] = useState<string>("");
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>();
+  const [isChanged, setIsChanged] = useState(false);
+  const [messageApi, contextHolder] = useMessage();
+
+  const [form] = Form.useForm();
 
   const { data, isError, isLoading } = useQuery({
     queryKey: [PROFILE_QUERY_KEY],
     queryFn: async () => await getProfile(),
   });
 
+  const updateMutation = useMutation({
+    mutationKey: [PROFILE_QUERY_KEY],
+    mutationFn: async (requestBody: UpdateProfileRequest) => {
+      try {
+        if (data) {
+          let newImageUrl = data.image;
+          if (image) {
+            const res = await uploadImages([image]);
+            newImageUrl = res.paths[0];
+          }
+          requestBody.image = newImageUrl;
+          const updatedProfile = await updateProfile(requestBody);
+          return updatedProfile;
+        }
+      } catch (error) {
+        throw new Error("Cập nhật thông tin cá nhận thất bại");
+      }
+    },
+    onSuccess: (data) => {
+      console.log(data);
+
+      queryClient.setQueryData([PROFILE_QUERY_KEY], data);
+      messageApi.success("Cập nhật thông tin cá nhân thành công!");
+    },
+    onError: (error) => messageApi.error(error.message),
+  });
+
   useEffect(() => {
     if (data) {
       setAddress(data.address);
-    }
-  }, [data]);
-
-  const handleChange: UploadProps["onChange"] = (info) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === "done") {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as FileType, (url) => {
-        setLoading(false);
-        setImageUrl(url);
+      form.setFieldsValue({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
+        email: data.email,
+        dateOfBirth: dayjs(data.dateOfBirth, dateFormat),
+        gender: data.gender,
       });
     }
+  }, [data, form]);
+
+  const handleImageChange: UploadProps["onChange"] = (info) => {
+    getBase64(info.file.originFileObj as FileType, (url) => {
+      setImageUrl(url);
+    });
+  };
+
+  const uploadAction = (file: File) => {
+    setImage(file);
+    return "";
   };
 
   const uploadButton = (
@@ -89,25 +130,41 @@ const ProfilePage = () => {
     </button>
   );
 
-  const handleFinish = () => {};
+  const handleFinish = (values: any) => {
+    const requestBody: UpdateProfileRequest = {
+      email: values.email,
+      address: address,
+      phoneNumber: values.phoneNumber,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      dateOfBirth: new Date(
+        Date.UTC(
+          values.dateOfBirth.$y,
+          values.dateOfBirth.$M,
+          values.dateOfBirth.$D
+        )
+      ).toISOString(),
+      gender: values.gender,
+      image: null, // This will be updated in the mutation function if there is an image
+    };
+    updateMutation.mutate(requestBody);
+  };
+
+  const handleValuesChange = () => {
+    setIsChanged(true);
+  };
 
   if (data) {
     return (
       <PageWrapper>
         <Title>Thông tin người dùng</Title>
         <Form
+          form={form}
           name="login"
           onFinish={handleFinish}
           layout="vertical"
           requiredMark="optional"
-          initialValues={{
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phoneNumber: data.phoneNumber,
-            email: data.email,
-            dateOfBirth: dayjs(data.dateOfBirth, dateFormat),
-            gender: UserGender.MALE,
-          }}
+          onValuesChange={handleValuesChange}
           validateMessages={{
             required: "${label} là bắt buộc!",
             types: {
@@ -122,11 +179,17 @@ const ProfilePage = () => {
                 listType="picture-circle"
                 className="avatar-uploader"
                 showUploadList={false}
-                action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                action={uploadAction}
                 beforeUpload={beforeUpload}
-                onChange={handleChange}
+                onChange={handleImageChange}
               >
-                {data.image ? (
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt="avatar"
+                    style={{ width: "100%", borderRadius: "50%" }}
+                  />
+                ) : data.image ? (
                   <img
                     src={data.image}
                     alt="avatar"
@@ -213,9 +276,11 @@ const ProfilePage = () => {
             <Flex style={{ flex: 1 }} vertical>
               <FormAddress
                 defaultValue={address}
-                onChange={(address) => setAddress(address)}
+                onChange={(address) => {
+                  setAddress(address);
+                  setIsChanged(true);
+                }}
               />
-
               <Form.Item
                 label="Giới tính"
                 name="gender"
@@ -238,8 +303,9 @@ const ProfilePage = () => {
                     type="primary"
                     htmlType="submit"
                     size="large"
-                    loading={false}
+                    loading={updateMutation.isPending}
                     style={{ width: "35%" }}
+                    disabled={!isChanged}
                   >
                     Lưu thông tin
                   </Button>
@@ -248,6 +314,7 @@ const ProfilePage = () => {
             </Flex>
           </Flex>
         </Form>
+        {contextHolder}
       </PageWrapper>
     );
   }

@@ -14,7 +14,13 @@ export type ProfileResponse = {
   role: string;
 };
 
-export type UpdateUserStatusRequest = {
-  userId: number;
-  status: AccountStatus;
+export type UpdateProfileRequest = {
+  email: string;
+  address: string;
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  image: string | null;
 };

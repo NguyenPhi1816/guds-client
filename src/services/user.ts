@@ -1,5 +1,5 @@
 "use server";
-import { ProfileResponse } from "@/types/user";
+import { ProfileResponse, UpdateProfileRequest } from "@/types/user";
 import { api } from "./api";
 import { ErrorResponse } from "@/types/error";
 import { getAccessToken } from "./auth";
@@ -26,6 +26,34 @@ export const getProfile = async (accessToken?: string) => {
     }
 
     return profile ?? null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateProfile = async (requestBody: UpdateProfileRequest) => {
+  try {
+    const myAccessToken = await getAccessToken();
+
+    if (!myAccessToken) {
+      throw new Error("Có lỗi xảy ra trong quá trình cập nhật tin người dùng");
+    }
+
+    const res = await fetch(`${api}/users/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + myAccessToken,
+      },
+      body: JSON.stringify(requestBody),
+    });
+    const profile: ProfileResponse | ErrorResponse = await res.json();
+
+    if ("error" in profile) {
+      throw new Error(profile.message);
+    }
+
+    return profile;
   } catch (error) {
     throw error;
   }
