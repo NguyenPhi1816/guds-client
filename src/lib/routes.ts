@@ -6,6 +6,9 @@ export const PUBLIC_ROUTES = [
   "/category",
   "/brand",
   "/product",
+  "/verify-otp",
+  "/forgot-password",
+  "/change-password",
 ];
 export const DEFAULT_REDIRECT = "/login";
 export const REFRESH_TOKEN_REDIRECT = "/refresh-token";

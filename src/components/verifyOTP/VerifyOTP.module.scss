@@ -1,0 +1,29 @@
+.wrapper {
+  margin-top: 4rem;
+}
+
+.container {
+  width: 30%;
+}
+
+.title,
+.text {
+  text-align: center;
+}
+
+.text {
+  margin-bottom: 2rem;
+}
+
+.btn {
+  margin-top: 1rem;
+  width: 100%;
+
+  &-resend {
+    color: var(--light-yellow) !important;
+  }
+}
+
+.countdown-danger {
+  color: red !important;
+}

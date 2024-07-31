@@ -130,8 +130,6 @@ export const updatePassword = async (
   oldPassword: string,
   newPassword: string
 ): Promise<SuccessResponse> => {
-  console.log(oldPassword, newPassword);
-
   try {
     const accessToken = await getAccessToken();
     if (accessToken) {
@@ -153,6 +151,30 @@ export const updatePassword = async (
     } else {
       throw new Error("No session");
     }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updatePasswordByPhoneNumber = async (
+  phoneNumber: string,
+  newPassword: string
+): Promise<SuccessResponse> => {
+  try {
+    const res = await fetch(`${api}/auth/update-password-by-phone`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PUT",
+      body: JSON.stringify({ phoneNumber, newPassword }),
+    });
+    const result: SuccessResponse | ErrorResponse = await res.json();
+
+    if ("error" in result) {
+      throw new Error(result.message);
+    }
+
+    return result;
   } catch (error) {
     throw error;
   }

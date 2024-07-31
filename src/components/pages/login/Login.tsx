@@ -23,9 +23,9 @@ import { getSession } from "next-auth/react";
 import { SESSION_QUERY_KEY } from "@/services/queryKeys";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import Link from "next/link";
+import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
 
 const cx = classNames.bind(styles);
-const phoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/;
 
 const { Title, Text } = Typography;
 
@@ -123,11 +123,11 @@ export default function Login() {
             <Form.Item>
               <Flex justify="space-between">
                 <Space>
-                  <Checkbox></Checkbox>
+                  <Checkbox checked></Checkbox>
                   <Text>Ghi nhớ đăng nhập</Text>
                 </Space>
                 <Space>
-                  <Link href={"forgot-password"}>Quên mật khẩu</Link>
+                  <Link href="/forgot-password">Quên mật khẩu</Link>
                 </Space>
               </Flex>
             </Form.Item>
