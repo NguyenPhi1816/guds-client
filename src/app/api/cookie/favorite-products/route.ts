@@ -1,3 +1,5 @@
+import { CategoryProduct } from "@/types/category";
+import { ProductVariant } from "@/types/product";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,21 +17,26 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const requestHeader = new Headers(request.headers);
-  const productId = requestHeader.get("productId");
+  const productStr = requestHeader.get("product");
 
-  if (!productId) return NextResponse.error();
+  if (!productStr) return NextResponse.error();
+
+  const product: CategoryProduct | ProductVariant = JSON.parse(productStr);
 
   const favoriteProductsStr = cookies().get(name)?.value;
-  let favoriteProducts: string[] = [];
+  let favoriteProducts: (CategoryProduct | ProductVariant)[] = [];
   if (favoriteProductsStr) {
-    favoriteProducts = JSON.parse(favoriteProductsStr) as string[];
+    favoriteProducts = JSON.parse(favoriteProductsStr) as (
+      | CategoryProduct
+      | ProductVariant
+    )[];
   }
-  if (favoriteProducts.includes(productId)) {
+  if (favoriteProducts.map((item) => item.id).includes(product.id)) {
     favoriteProducts = favoriteProducts.filter(
-      (_productId) => _productId !== productId
+      (_product) => _product.id !== product.id
     );
   } else {
-    favoriteProducts.push(productId);
+    favoriteProducts.push(product);
   }
   const value = JSON.stringify(favoriteProducts);
 

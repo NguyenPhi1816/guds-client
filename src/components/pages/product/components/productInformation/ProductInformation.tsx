@@ -221,12 +221,9 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
   return (
     data &&
     variant && (
-      <Flex justify="space-evenly">
-        <div className={cx("section-1-left")}>
-          <div className={cx("section-1-left-top")}>
-            <img src={mainImage} alt={data.name} />
-          </div>
-          <Flex justify="space-between" className={cx("section-1-left-bottom")}>
+      <Flex justify="space-between">
+        <Space align="start" className={cx("section-1-left")}>
+          <Space direction="vertical" className={cx("section-1-left-bottom")}>
             {images.map((image, index) => (
               <div
                 key={index}
@@ -236,8 +233,11 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
                 <Image preview={false} src={image} />
               </div>
             ))}
-          </Flex>
-        </div>
+          </Space>
+          <div className={cx("section-1-left-top")}>
+            <img src={mainImage} alt={data.name} />
+          </div>
+        </Space>
         <div className={cx("section-1-right")}>
           <div className={cx("brand")}>
             <Link href={`/brand/${data.brand.slug}`}>

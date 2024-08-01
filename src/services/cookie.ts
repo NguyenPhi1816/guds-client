@@ -1,4 +1,6 @@
+import { CategoryProduct } from "@/types/category";
 import { FavoriteProductsResponse } from "@/types/cookie";
+import { ProductVariant } from "@/types/product";
 
 export const getFavoriteProducts = async () => {
   try {
@@ -12,13 +14,15 @@ export const getFavoriteProducts = async () => {
   }
 };
 
-export const setFavoriteProducts = async (productId: number) => {
+export const setFavoriteProducts = async (
+  product: CategoryProduct | ProductVariant
+) => {
   try {
     const res = await fetch("/api/cookie/favorite-products", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        productId: JSON.stringify(productId),
+        product: JSON.stringify(product),
       },
     });
     const data = await res.json();

@@ -14,8 +14,8 @@
 
   --app-header-height: 6rem;
   --product-card-width: 13rem;
-  --product-card-image-width: 13rem;
-  --product-card-image-height: 13rem;
+  --product-card-image-width: 11rem;
+  --product-card-image-height: 11rem;
 }
 
 html *::-webkit-scrollbar {
@@ -83,6 +83,11 @@ a {
   color: var(--black) !important;
 }
 
+.ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background-color: var(--light-grey) !important;
+  color: var(--black) !important;
+}
+
 .ant-menu-item {
   margin: 0 !important;
   margin-bottom: 0.5rem !important;
@@ -124,8 +129,4 @@ a {
 .ant-picker-outlined:hover,
 .ant-radio-wrapper:hover .ant-radio-inner {
   border-color: var(--light-yellow) !important;
-}
-
-.ant-menu-submenu-selected > .ant-menu-submenu-title {
-  color: var(--black) !important;
 }

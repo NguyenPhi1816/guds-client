@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import SessionModal from "@/components/modal/sessionModal";
 import { Layout } from "antd";
 import AppHeader from "@/components/header";
-import Sidebar from "@/components/sidebar";
 import { Content } from "antd/es/layout/layout";
 import Wrapper from "@/components/wrapper";
 import UserSidebar from "@/components/usersSidebar/UserSidebar";
@@ -18,12 +17,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "var(--white)" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        overflowY: "hidden",
+        backgroundColor: "var(--white)",
+      }}
+    >
       <AppHeader />
       <Wrapper>
-        <Layout style={{ minHeight: "100%" }}>
+        <Layout style={{ height: "calc(100vh - 96px)" }}>
           <UserSidebar />
-          <Content>{children}</Content>
+          <Content
+            style={{
+              height: "100%",
+              overflowY: "hidden",
+            }}
+          >
+            {children}
+          </Content>
         </Layout>
       </Wrapper>
       <SessionModal />

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 
 interface IWrapper {
   children: React.ReactNode;
+  style?: CSSProperties;
 }
 
-const Wrapper: React.FC<IWrapper> = ({ children }) => {
+const Wrapper: React.FC<IWrapper> = ({ children, style = {} }) => {
   return (
     <div
       style={{
@@ -13,6 +14,7 @@ const Wrapper: React.FC<IWrapper> = ({ children }) => {
         maxWidth: "1440px",
         height: "100%",
         width: "100%",
+        ...style,
       }}
     >
       {children}

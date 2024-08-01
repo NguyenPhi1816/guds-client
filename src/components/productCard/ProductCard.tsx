@@ -23,7 +23,9 @@ interface IProductCard {
 
 const ProductCard: React.FC<IProductCard> = ({ product }) => {
   const queryClient = useQueryClient();
-  const [favoriteProducts, _setFavoriteProducts] = useState<string[]>([]);
+  const [favoriteProducts, _setFavoriteProducts] = useState<
+    (CategoryProduct | ProductVariant)[]
+  >([]);
   const [messageApi, contextHolder] = useMessage();
 
   const { data, isLoading, isError } = useQuery({
@@ -32,7 +34,7 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
   });
 
   const mutation = useMutation({
-    mutationFn: () => setFavoriteProducts(product.id),
+    mutationFn: () => setFavoriteProducts(product),
     onSuccess: (data) => {
       messageApi.success("Thêm vào danh sách yêu thích thành công");
       queryClient.setQueryData([FAVORITE_PRODUCT_QUERY_KEY], data);
@@ -77,7 +79,7 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
               className={cx("cover-btn")}
               onClick={(e) => handleAddToFavorite(e)}
             >
-              {favoriteProducts.includes(product.id.toString()) ? (
+              {favoriteProducts.map((item) => item.id).includes(product.id) ? (
                 <HeartFilled className={cx("cover-btn-filled")} />
               ) : (
                 <HeartOutlined />

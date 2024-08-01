@@ -9,10 +9,10 @@ const PageWrapper: React.FC<IPageWrapper> = ({ children, style }) => {
   return (
     <div
       style={{
-        padding: "0 1rem",
-        paddingTop: "2rem",
+        padding: "2rem 1rem",
         width: "100%",
         height: "100%",
+        overflow: "scroll",
         backgroundColor: "var(--white)",
         ...style,
       }}

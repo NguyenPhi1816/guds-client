@@ -4,7 +4,7 @@ import styles from "./UserSidebar.module.scss";
 import classNames from "classnames/bind";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
 import {
   Menu,
@@ -37,9 +37,12 @@ const cx = classNames.bind(styles);
 
 const UserSidebar = () => {
   const fallbackUserAvatarUrl = process.env.NEXT_PUBLIC_FALLBACK_USER_IMAGE;
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [openKeys, setOpenKeys] = useState<string[]>(["1"]);
   const [messageApi, contextHolder] = useMessage();
   const router = useRouter();
+  const pathName = usePathname();
+
+  const selectedKey = pathName.replaceAll("/user/", "");
 
   const {
     data: session,
@@ -63,9 +66,15 @@ const UserSidebar = () => {
     );
   };
 
+  const handleTitleClick = (e: any) => {
+    e.domEvent.preventDefault();
+    e.domEvent.stopPropagation();
+    router.push(`/user/${e.key}`);
+  };
+
   const items: MenuItem[] = [
     {
-      key: "profile",
+      key: "1",
       label: "Thông tin cá nhân",
       icon: <UserOutlined />,
       children: [
@@ -73,18 +82,15 @@ const UserSidebar = () => {
           key: "profile",
           label: "Hồ sơ",
           icon: <UserOutlined />,
+          onTitleClick: handleTitleClick,
         },
         {
           key: "password",
           label: "Thay đổi mật khẩu",
           icon: <LockOutlined />,
+          onTitleClick: handleTitleClick,
         },
       ],
-      onTitleClick: (e) => {
-        e.domEvent.preventDefault();
-        e.domEvent.stopPropagation();
-        router.push(`/user/${e.key}`);
-      },
       expandIcon: (
         <Button
           onClick={(e) => {
@@ -139,6 +145,7 @@ const UserSidebar = () => {
           openKeys={openKeys}
           onOpenChange={(keys) => setOpenKeys(keys)}
           onClick={handleMenuClick}
+          selectedKeys={[selectedKey]}
         />
         {contextHolder}
       </Sider>

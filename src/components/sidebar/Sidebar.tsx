@@ -4,7 +4,7 @@ import styles from "./Sidebar.module.scss";
 import classNames from "classnames/bind";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { MenuProps } from "antd";
 import { Menu, Typography, Avatar, Button, Skeleton, Space, Flex } from "antd";
 import Sider from "antd/es/layout/Sider";
@@ -24,6 +24,9 @@ const Sidebar = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [messageApi, contextHolder] = useMessage();
   const router = useRouter();
+  const pathName = usePathname();
+
+  const selectedKey = pathName.replaceAll("/category/", "");
 
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getAllCategories(),
@@ -108,6 +111,8 @@ const Sidebar = () => {
           openKeys={openKeys}
           onOpenChange={(keys) => setOpenKeys(keys)}
           onClick={handleMenuClick}
+          selectedKeys={[selectedKey]}
+          style={{ paddingBottom: "10rem", overflowY: "scroll" }}
         />
       )}
       {contextHolder}

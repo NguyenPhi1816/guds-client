@@ -17,12 +17,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "var(--white)" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        overflowY: "hidden",
+        backgroundColor: "var(--white)",
+      }}
+    >
       <AppHeader />
       <Wrapper>
-        <Layout style={{ minHeight: "100%" }}>
+        <Layout style={{ height: "calc(100vh - 96px)" }}>
           <Sidebar />
-          <Content>{children}</Content>
+          <Content
+            style={{
+              height: "100%",
+              overflowY: "hidden",
+            }}
+          >
+            {children}
+          </Content>
         </Layout>
       </Wrapper>
       <SessionModal />

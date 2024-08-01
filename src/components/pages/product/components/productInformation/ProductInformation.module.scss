@@ -1,17 +1,12 @@
 .section-1 {
   &-left {
-    padding: 1rem;
+    padding: 4.3rem 1rem 1rem;
     width: 50%;
-    max-width: 416px;
-    max-height: 416px;
 
     &-top {
       margin-bottom: 0.5rem;
-      width: 100%;
-      min-width: 100%;
-      min-height: 100%;
-      display: flex;
-      align-items: center;
+      width: 416px;
+      height: 416px;
       border-radius: 0.5rem;
       overflow: hidden;
 
@@ -23,11 +18,9 @@
     }
 
     &-bottom {
-      width: 100%;
-
       &-image {
         cursor: pointer;
-        width: 30%;
+        width: 100px;
 
         & > * {
           border-radius: 0.5rem;
@@ -38,7 +31,7 @@
   }
 
   &-right {
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 3rem;
     width: 50%;
 
     .brand {

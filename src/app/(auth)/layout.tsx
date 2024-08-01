@@ -16,10 +16,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Layout style={{ minHeight: "100vh", backgroundColor: "var(--white)" }}>
+    <Layout
+      style={{
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "var(--white)",
+      }}
+    >
       <AuthHeader />
       <Wrapper>
-        <Layout style={{ minHeight: "100%" }}>
+        <Layout>
           <Content>{children}</Content>
         </Layout>
       </Wrapper>
