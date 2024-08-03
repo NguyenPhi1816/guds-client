@@ -6,16 +6,14 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProductBySlug } from "@/services/product";
 import PageWrapper from "@/components/wrapper/PageWrapper";
-import { Breadcrumb, Flex, Space, Spin, Typography } from "antd";
-import { HomeOutlined } from "@ant-design/icons";
-import useMessage from "antd/es/message/useMessage";
 import ProductInformation from "./components/productInformation";
 import ProductCategory from "@/components/productCategory";
 import ProductDescription from "./components/productDescription";
 import ProductReview from "./components/productReview";
 import { BASE_PRODUCT_QUERY_KEY } from "@/services/queryKeys";
-
-const { Text } = Typography;
+import CustomBreadcrumb from "@/components/customBreadcrumb";
+import LoadingPage from "../loadingPage";
+import ErrorPage from "../errorPage";
 
 const cx = classNames.bind(styles);
 
@@ -25,7 +23,6 @@ const ProductPage = () => {
   const spid = searchParams.get("spid");
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [messageApi, contextHolder] = useMessage();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [BASE_PRODUCT_QUERY_KEY],
@@ -40,50 +37,22 @@ const ProductPage = () => {
   }, []);
 
   if (isLoading || loading) {
-    return (
-      <PageWrapper
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Spin />
-      </PageWrapper>
-    );
+    return <LoadingPage />;
   }
 
   if (isError) {
-    messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
+    return <ErrorPage />;
   }
 
-  return (
-    slug &&
-    spid &&
-    data && (
+  if (slug && spid && data) {
+    return (
       <PageWrapper>
-        <Breadcrumb
-          separator=">"
-          items={[
-            {
-              title: (
-                <Space>
-                  <HomeOutlined className={cx("breadcrumb-title")} />
-                  <Text className={cx("breadcrumb-title")}>Trang chủ</Text>
-                </Space>
-              ),
-              href: "/",
-            },
-            ...data.categories.map((category) => ({
-              title: (
-                <Text className={cx("breadcrumb-title")}>{category.name}</Text>
-              ),
-              href: `/category/${category.slug}`,
-            })),
-            {
-              title: data.name,
-            },
-          ]}
+        <CustomBreadcrumb
+          currentPageName={data.name}
+          parentPages={data.categories.map((category) => ({
+            href: `/category/${category.slug}`,
+            name: category.name,
+          }))}
         />
         <ProductInformation data={data} spid={spid} />
         <ProductCategory
@@ -96,10 +65,9 @@ const ProductPage = () => {
           slug={slug as string}
           averageRating={data.averageRating}
         />
-        {contextHolder}
       </PageWrapper>
-    )
-  );
+    );
+  }
 };
 
 export default ProductPage;

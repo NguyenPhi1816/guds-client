@@ -29,6 +29,10 @@ import OrderReceiverModal from "@/components/modal/orderReceiverModal";
 import { CreateOrderRequest, OrderDetailRequest } from "@/types/order";
 import { createOrder } from "@/services/order";
 import { deleteCart } from "@/services/cart";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import LoadingPage from "../loadingPage";
+import ErrorPage from "../errorPage";
+import { error } from "console";
 
 const { Title, Text } = Typography;
 
@@ -49,7 +53,7 @@ const CheckoutPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [address, setAddess] = useState<string>("");
   const [note, setNote] = useState<string>("");
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const {
     data: session,
@@ -86,6 +90,7 @@ const CheckoutPage: React.FC = () => {
       }
       return handlePayment(data.payment.totalPrice, data.order.id);
     },
+    onError: (error) => message.error(error.message),
   });
 
   const deleteMutation = useMutation({
@@ -94,7 +99,7 @@ const CheckoutPage: React.FC = () => {
       queryClient.setQueryData([CART_QUERY_KEY], data);
     },
     onError: () => {
-      messageApi.error("Xóa giỏ hàng thất bại");
+      message.error("Xóa giỏ hàng thất bại");
     },
   });
 
@@ -163,7 +168,7 @@ const CheckoutPage: React.FC = () => {
         break;
       }
       default: {
-        messageApi.error(
+        message.error(
           "Có lỗi xảy ra: Vui lòng chọn phương thức thanh toán hợp lệ"
         );
       }
@@ -222,99 +227,99 @@ const CheckoutPage: React.FC = () => {
     0
   );
 
-  return (
-    session &&
-    session.user && (
+  if (isLoading || sessionLoading) {
+    return <LoadingPage />;
+  }
+
+  if (sessionError) {
+    return <ErrorPage />;
+  }
+
+  if (session && session.user) {
+    return (
       <PageWrapper style={{ paddingBottom: "4rem" }}>
         <Title level={2}>Thanh toán</Title>
         <div className={cx("cartPageWrapper")}>
-          {isLoading && sessionLoading ? (
-            <div className={cx("spinner-container")}>
-              <Spin className={cx("spinner")} size="large" />
-              <Text>Đang tải dữ liệu đơn hàng</Text>
-            </div>
-          ) : (
-            <Flex style={{ width: "100%" }} vertical>
-              <Flex vertical className={cx("receiver-infor")}>
-                <Title level={4}>Địa chỉ nhận hàng</Title>
-                <Flex justify="space-between" align="center">
-                  <Space direction="vertical">
-                    <Text strong>Tên: {name}</Text>
-                    <Text strong>Số điện thoại: {phoneNumber}</Text>
-                    <Text strong className={cx("receiver-infor-address")}>
-                      Địa chỉ nhận hàng: {address}
-                    </Text>
-                  </Space>
-                  <Button onClick={() => setOpen(true)}>Thay đổi</Button>
-                </Flex>
-              </Flex>
-              <Flex justify="space-between">
-                <Table
-                  bordered={false}
-                  className={cx("tableWrapper")}
-                  columns={columns}
-                  dataSource={data}
-                  rowKey="productVariantId"
-                  pagination={false}
-                />
-                <div className={cx("summaryWrapper")}>
-                  <Title level={4}>Tổng kết đơn hàng</Title>
-                  <Divider />
-                  <Row className={cx("totalRow")}>
-                    <Space direction="vertical">
-                      <Text strong>Phương thức thanh toán:</Text>
-                      <Radio.Group
-                        value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                      >
-                        <Space direction="vertical">
-                          <Radio value={PaymentMethod.CASH}>
-                            Thanh toán khi nhận hàng
-                          </Radio>
-                          <Radio value={PaymentMethod.VNPAY}>
-                            Cổng thanh toán VNPay
-                          </Radio>
-                        </Space>
-                      </Radio.Group>
-                    </Space>
-                  </Row>
-                  <Divider />
-                  <Row className={cx("totalRow")}>
-                    <Flex
-                      className={cx("note")}
-                      justify="space-between"
-                      align="center"
-                    >
-                      <Text className={cx("note-text")} strong>
-                        Lời nhắn:
-                      </Text>
-                      <Input
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        className={cx("note-input")}
-                        placeholder="Lưu ý cho người bán..."
-                      />
-                    </Flex>
-                  </Row>
-                  <Divider />
-                  <Row className={cx("totalRow")}>
-                    <Text strong>Tổng cộng:</Text>
-                    <Text strong>{totalPrice.toLocaleString()} VND</Text>
-                  </Row>
-                  <Divider />
-                  <Button
-                    type="primary"
-                    block
-                    size="large"
-                    className={cx("checkout-btn")}
-                    onClick={handleCheckout}
-                  >
-                    Thanh toán
-                  </Button>
-                </div>
+          <Flex style={{ width: "100%" }} vertical>
+            <Flex vertical className={cx("receiver-infor")}>
+              <Title level={4}>Địa chỉ nhận hàng</Title>
+              <Flex justify="space-between" align="center">
+                <Space direction="vertical">
+                  <Text strong>Tên: {name}</Text>
+                  <Text strong>Số điện thoại: {phoneNumber}</Text>
+                  <Text strong className={cx("receiver-infor-address")}>
+                    Địa chỉ nhận hàng: {address}
+                  </Text>
+                </Space>
+                <Button onClick={() => setOpen(true)}>Thay đổi</Button>
               </Flex>
             </Flex>
-          )}
+            <Flex justify="space-between">
+              <Table
+                bordered={false}
+                className={cx("tableWrapper")}
+                columns={columns}
+                dataSource={data}
+                rowKey="productVariantId"
+                pagination={false}
+              />
+              <div className={cx("summaryWrapper")}>
+                <Title level={4}>Tổng kết đơn hàng</Title>
+                <Divider />
+                <Row className={cx("totalRow")}>
+                  <Space direction="vertical">
+                    <Text strong>Phương thức thanh toán:</Text>
+                    <Radio.Group
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    >
+                      <Space direction="vertical">
+                        <Radio value={PaymentMethod.CASH}>
+                          Thanh toán khi nhận hàng
+                        </Radio>
+                        <Radio value={PaymentMethod.VNPAY}>
+                          Cổng thanh toán VNPay
+                        </Radio>
+                      </Space>
+                    </Radio.Group>
+                  </Space>
+                </Row>
+                <Divider />
+                <Row className={cx("totalRow")}>
+                  <Flex
+                    className={cx("note")}
+                    justify="space-between"
+                    align="center"
+                  >
+                    <Text className={cx("note-text")} strong>
+                      Lời nhắn:
+                    </Text>
+                    <Input
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      className={cx("note-input")}
+                      placeholder="Lưu ý cho người bán..."
+                    />
+                  </Flex>
+                </Row>
+                <Divider />
+                <Row className={cx("totalRow")}>
+                  <Text strong>Tổng cộng:</Text>
+                  <Text strong>{totalPrice.toLocaleString()} VND</Text>
+                </Row>
+                <Divider />
+                <Button
+                  type="primary"
+                  block
+                  size="large"
+                  className={cx("checkout-btn")}
+                  onClick={handleCheckout}
+                >
+                  Thanh toán
+                </Button>
+              </div>
+            </Flex>
+          </Flex>
         </div>
         <OrderReceiverModal
           open={open}
@@ -324,10 +329,9 @@ const CheckoutPage: React.FC = () => {
           receiverAddress={address}
           receiverPhoneNumber={phoneNumber}
         />
-        {contextHolder}
       </PageWrapper>
-    )
-  );
+    );
+  }
 };
 
 export default CheckoutPage;

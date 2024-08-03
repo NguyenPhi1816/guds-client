@@ -24,6 +24,7 @@ import { SESSION_QUERY_KEY } from "@/services/queryKeys";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import Link from "next/link";
 import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 const cx = classNames.bind(styles);
 
@@ -33,7 +34,7 @@ export default function Login() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
-  const [messageApi, contextHolder] = message.useMessage();
+  const message = useGlobalMessage();
 
   const redirect = searchParams.get("redirect") ?? "/";
 
@@ -54,7 +55,7 @@ export default function Login() {
       mutation.mutate();
     } catch (error) {
       if (error instanceof Error) {
-        messageApi.open({
+        message.open({
           type: "error",
           content: error.message,
         });
@@ -149,7 +150,6 @@ export default function Login() {
             <Link href="/signup">Đăng ký</Link>
           </Space>
         </Space>
-        {contextHolder}
       </Flex>
     </PageWrapper>
   );

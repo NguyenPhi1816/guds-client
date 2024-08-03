@@ -13,6 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { SuccessResponse } from "@/types/sucess";
 import { sendOtp, verifyOtp } from "@/services/otp";
 import { useRouter } from "next/navigation";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 type OTPProps = GetProps<typeof Input.OTP>;
 
@@ -28,25 +29,25 @@ const VerifyOTP = () => {
 
   const [otp, setOtp] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(60);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const reSendOtpMutation = useMutation({
     mutationFn: (phoneNumber: string) => sendOtp(phoneNumber),
     onSuccess: (data: SuccessResponse) => {
-      messageApi.success(data.message);
+      message.success(data.message);
       setCountdown(60);
     },
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   const verifyOtpMutation = useMutation({
     mutationFn: (params: { phoneNumber: string; otp: string }) =>
       verifyOtp(params.phoneNumber, params.otp),
     onSuccess: (data: SuccessResponse) => {
-      messageApi.success(data.message);
+      message.success(data.message);
       router.push(`/change-password?phoneNumber=${phoneNumber}`);
     },
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const VerifyOTP = () => {
     if (phoneNumber) {
       reSendOtpMutation.mutate(phoneNumber);
     } else {
-      messageApi.error("Có lỗi xảy ra");
+      message.error("Có lỗi xảy ra");
     }
   };
 
@@ -77,11 +78,11 @@ const VerifyOTP = () => {
 
   const handleSubmit = () => {
     if (!phoneNumber) {
-      return messageApi.error("Có lỗi xảy ra");
+      return message.error("Có lỗi xảy ra");
     }
 
     if (!otp) {
-      return messageApi.error("Vui lòng nhập OTP");
+      return message.error("Vui lòng nhập OTP");
     }
 
     verifyOtpMutation.mutate({ phoneNumber, otp });
@@ -133,7 +134,6 @@ const VerifyOTP = () => {
           </Flex>
         </Flex>
       </Flex>
-      {contextHolder}
     </PageWrapper>
   );
 };

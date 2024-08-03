@@ -68,11 +68,38 @@ export const updateReview = async (
   }
 };
 
+export const deleteReview = async (reviewId: number) => {
+  try {
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      const res = await fetch(`${api}/reviews/${reviewId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
+        },
+        method: "DELETE",
+      });
+      const result: any | ErrorResponse = await res.json();
+
+      if ("error" in result) {
+        throw new Error(result.message);
+      }
+
+      return result;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getReviewsByBaseProductSlug = async (
-  slug: string
+  slug: string,
+  queryParam: string
 ): Promise<Review[]> => {
   try {
-    const res = await fetch(`${api}/reviews/${slug}`);
+    const res = await fetch(`${api}/reviews/${slug}${queryParam}`);
     const data: Review[] | ErrorResponse = await res.json();
 
     if ("error" in data) {

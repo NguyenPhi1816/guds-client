@@ -32,6 +32,10 @@ import { getSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { Cart } from "@/types/cart";
 import qs from "query-string";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import LoadingPage from "@/components/pages/loadingPage";
+import ErrorPage from "@/components/pages/errorPage";
+import { productStatus } from "@/constant/enum/productStatus";
 
 const { Title, Text } = Typography;
 
@@ -55,7 +59,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
   const [optionValuesChanged, setOptionValuesChanged] =
     useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(1);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const {
     data: session,
@@ -70,11 +74,11 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
     mutationFn: (params: { id: number; quantity: number }) =>
       addProductToCart(params.id, params.quantity),
     onSuccess: (data) => {
-      messageApi.success("Thêm vào giỏ hàng thành công");
+      message.success("Thêm vào giỏ hàng thành công");
       queryClient.setQueryData([CART_QUERY_KEY], data);
     },
     onError: () => {
-      messageApi.error("Thêm vào giỏ hàng thất bại");
+      message.error("Thêm vào giỏ hàng thất bại");
     },
   });
 
@@ -158,7 +162,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
   const handleIncreaseQuantity = () => {
     const newValue = quantity + 1;
     if (variant && newValue > variant.quantity) {
-      messageApi.error("Đã đạt số lượng tối đa");
+      message.error("Đã đạt số lượng tối đa");
       return;
     }
     setQuantity(newValue);
@@ -177,7 +181,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
     if (variant && num) {
       if (num > variant.quantity) {
         setQuantity(variant.quantity);
-        messageApi.error("Đã đạt số lượng tối đa");
+        message.error("Đã đạt số lượng tối đa");
         return;
       }
 
@@ -217,6 +221,14 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
       router.push(`/checkout?${queryString}`);
     }
   };
+
+  if (sessionLoading) {
+    return <LoadingPage />;
+  }
+
+  if (sessionError) {
+    return <ErrorPage />;
+  }
 
   return (
     data &&
@@ -321,26 +333,31 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
               <PlusOutlined />
             </Button>
           </Space>
-          <Space align="center">
-            <Button
-              size="large"
-              className={cx("btn-add-to-card")}
-              onClick={handleAddProductToCart}
-            >
-              <ShoppingCartOutlined />
-              Thêm vào giỏ hàng
-            </Button>
-            <Button
-              size="large"
-              type="primary"
-              className={cx("btn-buy")}
-              onClick={handleCheckout}
-            >
-              Mua hàng
-            </Button>
-          </Space>
+          {data.status === productStatus.ACTIVE ? (
+            <Space align="center">
+              <Button
+                size="large"
+                className={cx("btn-add-to-card")}
+                onClick={handleAddProductToCart}
+              >
+                <ShoppingCartOutlined />
+                Thêm vào giỏ hàng
+              </Button>
+              <Button
+                size="large"
+                type="primary"
+                className={cx("btn-buy")}
+                onClick={handleCheckout}
+              >
+                Mua hàng
+              </Button>
+            </Space>
+          ) : (
+            <Title level={4} className={cx("inactive-status")}>
+              Sản phẩm đã ngừng kinh doanh
+            </Title>
+          )}
         </div>
-        {contextHolder}
       </Flex>
     )
   );

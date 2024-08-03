@@ -1,21 +1,14 @@
-import { REVIEWS_QUERY_KEY } from "@/services/queryKeys";
-import { createReview, updateReview } from "@/services/review";
+import { ORDERS_QUERY_KEY, REVIEWS_QUERY_KEY } from "@/services/queryKeys";
+import { createReview, deleteReview, updateReview } from "@/services/review";
 import { OrderFull } from "@/types/order";
-import { useMutation } from "@tanstack/react-query";
-import {
-  Button,
-  Divider,
-  Flex,
-  Input,
-  Modal,
-  Rate,
-  Space,
-  Typography,
-} from "antd";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button, Flex, Input, Modal, Rate, Space, Typography } from "antd";
 import { useState } from "react";
 
 const { TextArea } = Input;
 const { Text } = Typography;
+const { confirm } = Modal;
 
 export enum ReviewModalType {
   CREATE,
@@ -35,6 +28,7 @@ const ReviewModal: React.FC<IReviewModal> = ({
   onClose,
   data,
 }) => {
+  const queryClient = useQueryClient();
   const [rating, setRating] = useState<number>(
     data.orderDetails[0].review ? data.orderDetails[0].review.rating : 5
   );
@@ -43,24 +37,43 @@ const ReviewModal: React.FC<IReviewModal> = ({
   );
 
   const createMutation = useMutation({
-    mutationKey: [REVIEWS_QUERY_KEY],
     mutationFn: (params: {
       orderId: number;
       rating: number;
       comment: string | null;
     }) => createReview(params.orderId, params.rating, params.comment),
-    onSuccess: () => onClose("Gửi đánh giá thành công", "success"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [ORDERS_QUERY_KEY],
+      });
+      onClose("Gửi đánh giá thành công", "success");
+    },
     onError: (error) => onClose(error.message, "error"),
   });
 
   const updateMutation = useMutation({
-    mutationKey: [REVIEWS_QUERY_KEY],
     mutationFn: (params: {
       reviewId: number;
       rating: number;
       comment: string | null;
     }) => updateReview(params.reviewId, params.rating, params.comment),
-    onSuccess: () => onClose("Sửa đánh giá thành công", "success"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [ORDERS_QUERY_KEY],
+      });
+      onClose("Sửa đánh giá thành công", "success");
+    },
+    onError: (error) => onClose(error.message, "error"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (reviewId: number) => deleteReview(reviewId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [ORDERS_QUERY_KEY],
+      });
+      onClose("Xóa đánh giá thành công", "success");
+    },
     onError: (error) => onClose(error.message, "error"),
   });
 
@@ -81,6 +94,26 @@ const ReviewModal: React.FC<IReviewModal> = ({
     }
   };
 
+  const handleDeleteReview = () => {
+    confirm({
+      title: "Xóa đánh xóa",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn có muốn xóa đánh giá không?",
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk() {
+        const review = data.orderDetails[0].review;
+        if (review) {
+          deleteMutation.mutate(review.id);
+        }
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
+
   return (
     <Modal
       title="Đánh giá sản phẩm"
@@ -89,7 +122,7 @@ const ReviewModal: React.FC<IReviewModal> = ({
       onCancel={() => onClose()}
       footer={[
         type === ReviewModalType.EDIT && (
-          <Button key="delete" danger>
+          <Button key="delete" danger onClick={handleDeleteReview}>
             Xóa đánh giá
           </Button>
         ),

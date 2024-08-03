@@ -2,29 +2,42 @@
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { updatePassword } from "@/services/auth";
 import { SuccessResponse } from "@/types/sucess";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import { ExclamationCircleFilled } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
-import { Button, Form, Input, Typography } from "antd";
+import { Button, Form, Input, Modal, Typography } from "antd";
 import useMessage from "antd/es/message/useMessage";
-import { error } from "console";
-import { useState } from "react";
 
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const UpdatePassword = () => {
   const [form] = Form.useForm();
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const updateMutation = useMutation({
     mutationFn: async (params: { oldPassword: string; newPassword: string }) =>
       await updatePassword(params.oldPassword, params.newPassword),
-    onSuccess: (data: SuccessResponse) => messageApi.success(data.message),
-    onError: (error) => messageApi.error(error.message),
+    onSuccess: (data: SuccessResponse) => message.success(data.message),
+    onError: (error) => message.error(error.message),
   });
 
   const onFinish = (values: any) => {
-    updateMutation.mutate({
-      oldPassword: values.oldPassword,
-      newPassword: values.newPassword,
+    confirm({
+      title: "Thay đổi mật khẩu",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn có muốn thay đổi mật khẩu không?",
+      okText: "Có",
+      cancelText: "Không",
+      onOk() {
+        updateMutation.mutate({
+          oldPassword: values.oldPassword,
+          newPassword: values.newPassword,
+        });
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
     });
   };
 
@@ -104,7 +117,6 @@ const UpdatePassword = () => {
           </Form.Item>
         </Form>
       </div>
-      {contextHolder}
     </PageWrapper>
   );
 };

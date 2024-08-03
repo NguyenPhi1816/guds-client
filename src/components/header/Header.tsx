@@ -10,21 +10,22 @@ import {
   Flex,
   Layout,
   MenuProps,
+  Modal,
   Skeleton,
   Space,
 } from "antd";
 import Link from "next/link";
 import AppSearchBar from "../searchbar/AppSearchBar";
 import {
+  ExclamationCircleFilled,
   HeartOutlined,
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { getSession, signOut } from "next-auth/react";
 import Wrapper from "../wrapper";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import { getAllCategories } from "@/services/category";
-import useMessage from "antd/es/message/useMessage";
 import { getFavoriteProducts } from "@/services/cookie";
 import {
   CART_QUERY_KEY,
@@ -34,53 +35,70 @@ import {
 } from "@/services/queryKeys";
 import { getCart } from "@/services/cart";
 import { useRouter } from "next/navigation";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 const { Header } = Layout;
+const { confirm } = Modal;
 
 const cx = classNames.bind(styles);
 
 const AppHeader = () => {
   const router = useRouter();
   const fallbackUserAvatarUrl = process.env.NEXT_PUBLIC_FALLBACK_USER_IMAGE;
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
-  const { data, isLoading, isError } = useQuery({
-    queryFn: async () => await getAllCategories(),
-    queryKey: [CATEGORIES_QUERY_KEY],
+  const queries = useQueries({
+    queries: [
+      {
+        queryKey: [CATEGORIES_QUERY_KEY],
+        queryFn: async () => await getAllCategories(),
+      },
+      {
+        queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
+        queryFn: async () => await getFavoriteProducts(),
+      },
+      {
+        queryKey: [CART_QUERY_KEY],
+        queryFn: async () => await getCart(),
+      },
+      {
+        queryKey: [SESSION_QUERY_KEY],
+        queryFn: async () => await getSession(),
+      },
+    ],
   });
 
-  const {
-    data: favoriteProducts,
-    isLoading: favoriteProductsLoading,
-    isError: favoriteProductsError,
-  } = useQuery({
-    queryFn: async () => await getFavoriteProducts(),
-    queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
-  });
+  const [categoriesQuery, favoriteProductsQuery, cartQuery, sessionQuery] =
+    queries;
 
-  const {
-    data: cart,
-    isLoading: cartLoading,
-    isError: cartError,
-  } = useQuery({
-    queryFn: async () => await getCart(),
-    queryKey: [CART_QUERY_KEY],
-  });
+  const isLoading =
+    categoriesQuery.isLoading ||
+    favoriteProductsQuery.isLoading ||
+    cartQuery.isLoading ||
+    sessionQuery.isLoading;
 
-  const {
-    data: session,
-    isLoading: sessionLoading,
-    isError: sessionError,
-  } = useQuery({
-    queryFn: async () => await getSession(),
-    queryKey: [SESSION_QUERY_KEY],
-  });
+  const isError =
+    categoriesQuery.isError ||
+    favoriteProductsQuery.isError ||
+    cartQuery.isError ||
+    sessionQuery.isError;
 
-  console.log(session);
-
-  if (isError || favoriteProductsError || cartError || sessionError) {
-    messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
-  }
+  const handleSignOut = () => {
+    confirm({
+      title: "Đăng xuất",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn có muốn đăng xuất không",
+      okText: "Đăng xuất",
+      okType: "danger",
+      cancelText: "Không",
+      onOk() {
+        signOut();
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  };
 
   const items: MenuProps["items"] = [
     {
@@ -110,12 +128,16 @@ const AppHeader = () => {
     {
       key: "3",
       label: (
-        <Button onClick={() => signOut()} type="link" danger>
+        <Button onClick={handleSignOut} type="link" danger>
           Đăng xuất
         </Button>
       ),
     },
   ];
+
+  if (isError) {
+    return router.push("/error");
+  }
 
   return (
     <Header className={cx("header")}>
@@ -140,7 +162,11 @@ const AppHeader = () => {
                 shape="circle"
                 type="text"
               >
-                <Badge showZero count={cart ? cart.length : 0} size="small">
+                <Badge
+                  showZero
+                  count={cartQuery.data ? cartQuery.data.length : 0}
+                  size="small"
+                >
                   <ShoppingCartOutlined className={cx("icon")} />
                 </Badge>
               </Button>
@@ -154,8 +180,9 @@ const AppHeader = () => {
                 <Badge
                   showZero
                   count={
-                    favoriteProducts && favoriteProducts.data
-                      ? favoriteProducts.data.length
+                    favoriteProductsQuery.data &&
+                    favoriteProductsQuery.data.data
+                      ? favoriteProductsQuery.data.data.length
                       : "0"
                   }
                   size="small"
@@ -164,22 +191,22 @@ const AppHeader = () => {
                 </Badge>
               </Button>
             </Flex>
-            {!session && sessionLoading ? (
+            {!sessionQuery.data && sessionQuery.isLoading ? (
               <Skeleton.Avatar active className={cx("skeleton-avatar")} />
-            ) : !session ? (
+            ) : !sessionQuery.data ? (
               <Flex align="center">
                 <Button href="/login" shape="circle" type="text">
                   <UserOutlined className={cx("icon")} />
                 </Button>
               </Flex>
             ) : (
-              session.user && (
+              sessionQuery.data.user && (
                 <Dropdown menu={{ items }} placement="bottomRight">
                   <Avatar
                     shape="circle"
                     src={
-                      session.user.image
-                        ? session.user.image
+                      sessionQuery.data.user.image
+                        ? sessionQuery.data.user.image
                         : fallbackUserAvatarUrl
                     }
                   />
@@ -200,7 +227,7 @@ const AppHeader = () => {
                     className={cx("skeleton-input")}
                   />
                 ))
-            : data?.slice(0, 5).map((category) => (
+            : categoriesQuery.data?.slice(0, 5).map((category) => (
                 <Link
                   className={cx("header-bottom-link")}
                   key={category.id}
@@ -211,7 +238,6 @@ const AppHeader = () => {
               ))}
         </Flex>
       </Wrapper>
-      {contextHolder}
     </Header>
   );
 };

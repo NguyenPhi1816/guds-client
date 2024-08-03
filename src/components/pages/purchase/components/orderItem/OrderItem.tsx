@@ -2,49 +2,96 @@ import { OrderFull } from "@/types/order";
 import styles from "./OrderItem.module.scss";
 import classNames from "classnames/bind";
 import React, { useState } from "react";
-import { Button, Divider, Flex, Space, Typography } from "antd";
+import { Button, Divider, Flex, Modal, Space, Typography } from "antd";
 import { OrderStatus } from "@/constant/enum/orderStatus";
 import { formatCurrency } from "@/formater/CurrencyFormater";
 import ReviewModal from "../reviewModal";
 import { ReviewModalType } from "../reviewModal/ReviewModal";
-import useMessage from "antd/es/message/useMessage";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { cancelOrder } from "@/services/order";
+import { ORDERS_QUERY_KEY } from "@/services/queryKeys";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import { ExclamationCircleFilled } from "@ant-design/icons";
+import OrderDetailModal from "../orderDetailModal";
 
 const cx = classNames.bind(styles);
 
 const { Text } = Typography;
+const { confirm } = Modal;
 
 interface IOrderItem {
   data: OrderFull;
 }
 
 const OrderItem: React.FC<IOrderItem> = ({ data }) => {
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
   const [modalType, setModalType] = useState<ReviewModalType>(
     data.orderDetails[0].review ? ReviewModalType.EDIT : ReviewModalType.CREATE
   );
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
+
+  const cancelMutation = useMutation({
+    mutationFn: () => cancelOrder(data.id),
+    onSuccess: () => {
+      message.success("Hủy đơn hàng thành công");
+      queryClient.invalidateQueries({ queryKey: [ORDERS_QUERY_KEY] });
+    },
+    onError: (error) => message.error(error.message),
+  });
 
   const handleShowModal = () => {
+    setModalType(
+      data.orderDetails[0].review
+        ? ReviewModalType.EDIT
+        : ReviewModalType.CREATE
+    );
     setShowModal(true);
   };
 
+  const handleShowDetailModal = () => {
+    setShowDetailModal(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setShowDetailModal(false);
+  };
+
   const handleCloseModal = (
-    message?: string,
+    _message?: string,
     messageType?: "error" | "success"
   ) => {
-    if (message && messageType) {
+    if (_message && messageType) {
       switch (messageType) {
         case "error": {
-          messageApi.error(message);
+          message.error(_message);
           break;
         }
         case "success": {
-          messageApi.success(message);
+          message.success(_message);
           break;
         }
       }
     }
     setShowModal(false);
+  };
+
+  const handleCancelOrder = () => {
+    confirm({
+      title: "Hủy đơn hàng",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn chắc chắn muốn hủy đơn hàng này chứ?",
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk() {
+        cancelMutation.mutate();
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   return (
@@ -60,7 +107,7 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
                 return <>Đang giao hàng</>;
               case OrderStatus.SUCCESS:
                 return <>Giao hàng thành công</>;
-              case OrderStatus.SUCCESS:
+              case OrderStatus.CANCEL:
                 return <>Đã hủy</>;
               default: {
                 return <>Không xác định</>;
@@ -115,7 +162,9 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
       <Divider />
       <Flex justify="flex-end">
         <Space>
-          {data.status === OrderStatus.PENDING && <Button>Hủy đơn hàng</Button>}
+          {data.status === OrderStatus.PENDING && (
+            <Button onClick={handleCancelOrder}>Hủy đơn hàng</Button>
+          )}
           {data.status === OrderStatus.SUCCESS &&
             data.orderDetails[0].review !== null && (
               <Button type="primary" onClick={handleShowModal}>
@@ -128,6 +177,9 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
                 Đánh giá
               </Button>
             )}
+          <Button type="primary" onClick={handleShowDetailModal}>
+            Chi tiết
+          </Button>
         </Space>
       </Flex>
       <ReviewModal
@@ -136,7 +188,11 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
         onClose={handleCloseModal}
         data={data}
       />
-      {contextHolder}
+      <OrderDetailModal
+        data={data}
+        open={showDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
     </div>
   );
 };

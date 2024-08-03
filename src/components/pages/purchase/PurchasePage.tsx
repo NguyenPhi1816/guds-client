@@ -3,24 +3,14 @@ import PageWrapper from "@/components/wrapper/PageWrapper";
 import { OrderStatus } from "@/constant/enum/orderStatus";
 import { getAllOrders } from "@/services/order";
 import { ORDERS_QUERY_KEY } from "@/services/queryKeys";
-import { CloseCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Empty,
-  Flex,
-  Input,
-  Space,
-  Spin,
-  Tabs,
-  TabsProps,
-  Typography,
-} from "antd";
+import { Empty, Input, Tabs, TabsProps } from "antd";
 import OrderItem from "./components/orderItem/OrderItem";
-import Search from "antd/es/transfer/search";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { OrderFull } from "@/types/order";
-
-const { Text } = Typography;
+import LoadingPage from "../loadingPage";
+import ErrorPage from "../errorPage";
 
 const EmptyTab = () => (
   <div
@@ -146,42 +136,6 @@ const PurchasePage = () => {
     setItems(items);
   }, [searchResult]);
 
-  if (isLoading) {
-    return (
-      <PageWrapper
-        style={{
-          height: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Space direction="vertical" align="center" size={"large"}>
-          <Spin />
-          <Text>Đang tải dữ liệu</Text>
-        </Space>
-      </PageWrapper>
-    );
-  }
-
-  if (isError) {
-    return (
-      <PageWrapper
-        style={{
-          height: "80vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Space direction="vertical" align="center" size={"large"}>
-          <CloseCircleOutlined style={{ fontSize: "3rem", color: "red" }} />
-          <Text>Có lỗi xảy ra trong quá trình tải dữ liệu</Text>
-        </Space>
-      </PageWrapper>
-    );
-  }
-
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     if (data) {
       const searchValue = e.target.value;
@@ -191,6 +145,14 @@ const PurchasePage = () => {
       setSearchResult(searchResult);
     }
   };
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (isError) {
+    return <ErrorPage />;
+  }
 
   if (data) {
     return (

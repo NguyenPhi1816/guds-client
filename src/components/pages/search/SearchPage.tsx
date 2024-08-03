@@ -3,12 +3,13 @@ import ProductCard from "@/components/productCard";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { searchProductByName } from "@/services/product";
 import { SEARCH_PRODUCT_BY_NAME_QUERY_KEY } from "@/services/queryKeys";
-import { CloseCircleOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
-import { List, Space, Spin, Typography } from "antd";
-import { useParams, useSearchParams } from "next/navigation";
+import { List, Typography } from "antd";
+import { useSearchParams } from "next/navigation";
+import LoadingPage from "../loadingPage";
+import ErrorPage from "../errorPage";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
@@ -20,39 +21,11 @@ const SearchPage = () => {
   });
 
   if (isLoading) {
-    return (
-      <PageWrapper
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Space direction="vertical" align="center" size={"large"}>
-          <Spin />
-          <Text>Đang tải dữ liệu</Text>
-        </Space>
-      </PageWrapper>
-    );
+    return <LoadingPage />;
   }
 
   if (isError) {
-    return (
-      <PageWrapper
-        style={{
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Space direction="vertical" align="center" size={"large"}>
-          <CloseCircleOutlined style={{ fontSize: "3rem", color: "red" }} />
-          <Text>Có lỗi xảy ra trong quá trình tải dữ liệu</Text>
-        </Space>
-      </PageWrapper>
-    );
+    return <ErrorPage />;
   }
 
   if (data) {

@@ -2,6 +2,7 @@
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { updatePasswordByPhoneNumber } from "@/services/auth";
 import { SuccessResponse } from "@/types/sucess";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Form, Input, Typography } from "antd";
 import useMessage from "antd/es/message/useMessage";
@@ -14,16 +15,16 @@ const ChangePassword = () => {
   const router = useRouter();
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const updateMutation = useMutation({
     mutationFn: async (params: { phoneNumber: string; newPassword: string }) =>
       await updatePasswordByPhoneNumber(params.phoneNumber, params.newPassword),
     onSuccess: (data: SuccessResponse) => {
-      messageApi.success(data.message);
+      message.success(data.message);
       router.push("/login");
     },
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   const onFinish = (values: any) => {
@@ -100,7 +101,6 @@ const ChangePassword = () => {
           </Form.Item>
         </Form>
       </div>
-      {contextHolder}
     </PageWrapper>
   );
 };

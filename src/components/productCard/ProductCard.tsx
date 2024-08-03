@@ -12,6 +12,10 @@ import useMessage from "antd/es/message/useMessage";
 import Link from "next/link";
 import { ProductVariant } from "@/types/product";
 import { FAVORITE_PRODUCT_QUERY_KEY } from "@/services/queryKeys";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import LoadingPage from "../pages/loadingPage";
+import ErrorPage from "../pages/errorPage";
+import { useRouter } from "next/navigation";
 
 const { Meta } = Card;
 
@@ -22,11 +26,12 @@ interface IProductCard {
 }
 
 const ProductCard: React.FC<IProductCard> = ({ product }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [favoriteProducts, _setFavoriteProducts] = useState<
     (CategoryProduct | ProductVariant)[]
   >([]);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getFavoriteProducts(),
@@ -36,11 +41,11 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
   const mutation = useMutation({
     mutationFn: () => setFavoriteProducts(product),
     onSuccess: (data) => {
-      messageApi.success("Thêm vào danh sách yêu thích thành công");
+      message.success("Thêm vào danh sách yêu thích thành công");
       queryClient.setQueryData([FAVORITE_PRODUCT_QUERY_KEY], data);
     },
     onError: () => {
-      messageApi.error("Thêm vào danh sách yêu thích thất bại");
+      message.error("Thêm vào danh sách yêu thích thất bại");
     },
   });
 
@@ -50,10 +55,6 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
     }
   }, [data]);
 
-  if (isError) {
-    messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
-  }
-
   const handleAddToFavorite = (
     e: React.MouseEvent<HTMLElement, MouseEvent>
   ) => {
@@ -61,6 +62,14 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
     e.stopPropagation();
     mutation.mutate();
   };
+
+  // if (isLoading) {
+  //   return <LoadingPage />;
+  // }
+
+  // if (isError) {
+  //   return router.push("/error");
+  // }
 
   return (
     <Link href={`/product/${product.slug}?spid=${product.variantId}`}>

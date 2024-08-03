@@ -2,7 +2,7 @@
 import styles from "./CartPage.module.scss";
 import classNames from "classnames/bind";
 
-import React, { FocusEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Image,
@@ -16,8 +16,14 @@ import {
   Space,
   InputNumber,
   Flex,
+  Modal,
 } from "antd";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  ExclamationCircleFilled,
+  MinusOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { Cart } from "@/types/cart";
@@ -25,11 +31,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CART_QUERY_KEY } from "@/services/queryKeys";
 import { deleteCart, getCart, updateCartQuantity } from "@/services/cart";
 import { CartQuantityUpdateType } from "@/constant/enum/cartQuantityUpdateType";
-import useMessage from "antd/es/message/useMessage";
 import { useRouter } from "next/navigation";
 import qs from "query-string";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import CustomBreadcrumb from "@/components/customBreadcrumb";
+import ErrorPage from "../errorPage";
+import LoadingPage from "../loadingPage";
 
 const { Title, Text } = Typography;
+
+const { confirm } = Modal;
 
 const cx = classNames.bind(styles);
 
@@ -38,7 +49,7 @@ const CartPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [selectedProducts, setSelectedProducts] = useState<Cart[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getCart(),
@@ -56,7 +67,7 @@ const CartPage: React.FC = () => {
       queryClient.setQueryData([CART_QUERY_KEY], data);
     },
     onError: () => {
-      messageApi.error("Cập nhật giỏ hàng thất bại");
+      message.error("Cập nhật giỏ hàng thất bại");
     },
   });
 
@@ -66,7 +77,7 @@ const CartPage: React.FC = () => {
       queryClient.setQueryData([CART_QUERY_KEY], data);
     },
     onError: () => {
-      messageApi.error("Xóa giỏ hàng thất bại");
+      message.error("Xóa giỏ hàng thất bại");
     },
   });
 
@@ -136,12 +147,25 @@ const CartPage: React.FC = () => {
   };
 
   const handleDelete = (productVariantId: number) => {
-    deleteMutation.mutate(productVariantId);
+    confirm({
+      title: "Xóa sản phẩm",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn muốn xóa sản phẩm này khỏi giỏ hàng?",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Không",
+      onOk() {
+        deleteMutation.mutate(productVariantId);
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   const handleCheckout = () => {
     if (selectedProducts.length === 0) {
-      messageApi.error("Vui lòng chọn sản phẩm");
+      message.error("Vui lòng chọn sản phẩm");
       return;
     }
     const queryString = qs.stringify({
@@ -264,90 +288,91 @@ const CartPage: React.FC = () => {
     0
   );
 
-  return (
-    <PageWrapper>
-      <Title level={2}>Giỏ hàng</Title>
-      <div className={cx("cartPageWrapper")}>
-        {isLoading ? (
-          <div className={cx("spinner-container")}>
-            <Spin className={cx("spinner")} size="large" />
-            <Text>Đang tải dữ liệu giỏ hàng</Text>
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (isError) {
+    return <ErrorPage />;
+  }
+
+  if (data) {
+    return (
+      <PageWrapper>
+        <CustomBreadcrumb currentPageName="Giỏ hàng" />
+        <Title level={2}>Giỏ hàng</Title>
+        <div className={cx("cartPageWrapper")}>
+          <Table
+            bordered={false}
+            className={cx("tableWrapper")}
+            columns={columns}
+            dataSource={data}
+            rowKey="productVariantId"
+            pagination={false}
+          />
+          <div className={cx("summaryWrapper")}>
+            <Title level={4}>Tổng kết giỏ hàng</Title>
+            <Divider />
+            {selectedProducts.length > 0 ? (
+              selectedProducts.map((product, index) => (
+                <div
+                  key={product.productVariantId}
+                  className={cx("productSummary")}
+                >
+                  <Row gutter={16}>
+                    <Col>
+                      <Image
+                        width={50}
+                        src={product.image}
+                        alt={product.name}
+                      />
+                    </Col>
+                    <Col>
+                      <Text strong>{product.name}</Text>
+                      <br />
+                      <Text className={cx("summary-text")}>
+                        {product.optionValues.join(", ")}
+                      </Text>
+                      <br />
+                      <Text className={cx("summary-text")}>
+                        Số lượng: {product.quantity}
+                      </Text>
+                      <br />
+                      <Text className={cx("summary-text")}>
+                        Giá:{" "}
+                        {(product.price * product.quantity).toLocaleString()}{" "}
+                        VND
+                      </Text>
+                    </Col>
+                  </Row>
+                  {index < selectedProducts.length - 1 && (
+                    <Divider className={cx("summary-divider")} />
+                  )}
+                </div>
+              ))
+            ) : (
+              <Text>Vui lòng chọn sản phẩm</Text>
+            )}
+            <Divider />
+            <Row className={cx("totalRow")}>
+              <Text strong>Tổng cộng:</Text>
+              <Text strong>{totalPrice.toLocaleString()} VND</Text>
+            </Row>
+            <Divider />
+            <Button
+              type="primary"
+              block
+              size="large"
+              className={cx("checkout-btn")}
+              onClick={handleCheckout}
+            >
+              Thanh toán
+            </Button>
           </div>
-        ) : (
-          <>
-            <Table
-              bordered={false}
-              className={cx("tableWrapper")}
-              columns={columns}
-              dataSource={data}
-              rowKey="productVariantId"
-              pagination={false}
-            />
-            <div className={cx("summaryWrapper")}>
-              <Title level={4}>Tổng kết giỏ hàng</Title>
-              <Divider />
-              {selectedProducts.length > 0 ? (
-                selectedProducts.map((product, index) => (
-                  <div
-                    key={product.productVariantId}
-                    className={cx("productSummary")}
-                  >
-                    <Row gutter={16}>
-                      <Col>
-                        <Image
-                          width={50}
-                          src={product.image}
-                          alt={product.name}
-                        />
-                      </Col>
-                      <Col>
-                        <Text strong>{product.name}</Text>
-                        <br />
-                        <Text className={cx("summary-text")}>
-                          {product.optionValues.join(", ")}
-                        </Text>
-                        <br />
-                        <Text className={cx("summary-text")}>
-                          Số lượng: {product.quantity}
-                        </Text>
-                        <br />
-                        <Text className={cx("summary-text")}>
-                          Giá:{" "}
-                          {(product.price * product.quantity).toLocaleString()}{" "}
-                          VND
-                        </Text>
-                      </Col>
-                    </Row>
-                    {index < selectedProducts.length - 1 && (
-                      <Divider className={cx("summary-divider")} />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <Text>Vui lòng chọn sản phẩm</Text>
-              )}
-              <Divider />
-              <Row className={cx("totalRow")}>
-                <Text strong>Tổng cộng:</Text>
-                <Text strong>{totalPrice.toLocaleString()} VND</Text>
-              </Row>
-              <Divider />
-              <Button
-                type="primary"
-                block
-                size="large"
-                className={cx("checkout-btn")}
-                onClick={handleCheckout}
-              >
-                Thanh toán
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-      {contextHolder}
-    </PageWrapper>
-  );
+        </div>
+      </PageWrapper>
+    );
+  }
 };
 
 export default CartPage;

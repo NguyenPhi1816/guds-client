@@ -24,6 +24,7 @@ import FormAddress from "@/components/form/address/FormAddress";
 import { signUp } from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 const cx = classNames.bind(styles);
 
@@ -32,15 +33,15 @@ const { Title, Text } = Typography;
 export default function Login() {
   const router = useRouter();
   const [address, setAddress] = useState<string>("");
-  const [messageApi, contextHolder] = message.useMessage();
+  const message = useGlobalMessage();
 
   const signUpMutation = useMutation({
     mutationFn: (request: SignUpRequest) => signUp(request),
     onSuccess: async (data: SignUpResponse) => {
-      messageApi.success(data.message);
+      message.success(data.message);
       setTimeout(() => router.push("/login"), 2000);
     },
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   const onFinish = async (values: any) => {
@@ -242,7 +243,6 @@ export default function Login() {
             </Form.Item>
           </Form>
         </Flex>
-        {contextHolder}
       </Flex>
     </PageWrapper>
   );

@@ -9,6 +9,7 @@ import {
   GetProp,
   Input,
   message,
+  Modal,
   Radio,
   Typography,
   Upload,
@@ -18,20 +19,27 @@ import FormAddress from "@/components/form/address/FormAddress";
 import { useEffect, useState } from "react";
 import { UserGender } from "@/constant/enum/userGender";
 import PageWrapper from "@/components/wrapper/PageWrapper";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleFilled,
+  LoadingOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PROFILE_QUERY_KEY } from "@/services/queryKeys";
+import { PROFILE_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
 import { getProfile, updateProfile } from "@/services/user";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
 import { uploadImages } from "@/services/upload";
 import { UpdateProfileRequest } from "@/types/user";
-import useMessage from "antd/es/message/useMessage";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
+import LoadingPage from "../loadingPage";
+import ErrorPage from "../errorPage";
 
 dayjs.extend(customParseFormat);
 
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const dateFormat = "YYYY/MM/DD";
 
@@ -62,7 +70,7 @@ const ProfilePage = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>();
   const [isChanged, setIsChanged] = useState(false);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const [form] = Form.useForm();
 
@@ -75,6 +83,7 @@ const ProfilePage = () => {
     mutationKey: [PROFILE_QUERY_KEY],
     mutationFn: async (requestBody: UpdateProfileRequest) => {
       try {
+        setLoading(true);
         if (data) {
           let newImageUrl = data.image;
           if (image) {
@@ -87,15 +96,15 @@ const ProfilePage = () => {
         }
       } catch (error) {
         throw new Error("Cập nhật thông tin cá nhận thất bại");
+      } finally {
+        setLoading(false);
       }
     },
     onSuccess: (data) => {
-      console.log(data);
-
-      queryClient.setQueryData([PROFILE_QUERY_KEY], data);
-      messageApi.success("Cập nhật thông tin cá nhân thành công!");
+      queryClient.setQueryData([PROFILE_QUERY_KEY, SESSION_QUERY_KEY], data);
+      message.success("Cập nhật thông tin cá nhân thành công!");
     },
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   useEffect(() => {
@@ -113,6 +122,7 @@ const ProfilePage = () => {
   }, [data, form]);
 
   const handleImageChange: UploadProps["onChange"] = (info) => {
+    setIsChanged(true);
     getBase64(info.file.originFileObj as FileType, (url) => {
       setImageUrl(url);
     });
@@ -131,28 +141,48 @@ const ProfilePage = () => {
   );
 
   const handleFinish = (values: any) => {
-    const requestBody: UpdateProfileRequest = {
-      email: values.email,
-      address: address,
-      phoneNumber: values.phoneNumber,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      dateOfBirth: new Date(
-        Date.UTC(
-          values.dateOfBirth.$y,
-          values.dateOfBirth.$M,
-          values.dateOfBirth.$D
-        )
-      ).toISOString(),
-      gender: values.gender,
-      image: null, // This will be updated in the mutation function if there is an image
-    };
-    updateMutation.mutate(requestBody);
+    confirm({
+      title: "Thay đổi thông tin",
+      icon: <ExclamationCircleFilled />,
+      content: "Bạn có muốn lưu thông tin không?",
+      okText: "Có",
+      cancelText: "Không",
+      onOk() {
+        const requestBody: UpdateProfileRequest = {
+          email: values.email,
+          address: address,
+          phoneNumber: values.phoneNumber,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          dateOfBirth: new Date(
+            Date.UTC(
+              values.dateOfBirth.$y,
+              values.dateOfBirth.$M,
+              values.dateOfBirth.$D
+            )
+          ).toISOString(),
+          gender: values.gender,
+          image: null, // This will be updated in the mutation function if there is an image
+        };
+        updateMutation.mutate(requestBody);
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   };
 
   const handleValuesChange = () => {
     setIsChanged(true);
   };
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (isError) {
+    return <ErrorPage />;
+  }
 
   if (data) {
     return (
@@ -314,7 +344,6 @@ const ProfilePage = () => {
             </Flex>
           </Flex>
         </Form>
-        {contextHolder}
       </PageWrapper>
     );
   }

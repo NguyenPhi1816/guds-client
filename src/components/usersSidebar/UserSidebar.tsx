@@ -29,6 +29,7 @@ import {
 } from "@ant-design/icons";
 import { CATEGORIES_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
 import { getSession } from "next-auth/react";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 type MenuItem = Required<MenuProps>["items"][number];
 const { Title, Text } = Typography;
@@ -38,7 +39,6 @@ const cx = classNames.bind(styles);
 const UserSidebar = () => {
   const fallbackUserAvatarUrl = process.env.NEXT_PUBLIC_FALLBACK_USER_IMAGE;
   const [openKeys, setOpenKeys] = useState<string[]>(["1"]);
-  const [messageApi, contextHolder] = useMessage();
   const router = useRouter();
   const pathName = usePathname();
 
@@ -119,6 +119,13 @@ const UserSidebar = () => {
     },
   ];
 
+  // if (sessionLoading) {
+  // }
+
+  if (sessionError) {
+    router.push("/error");
+  }
+
   return (
     session &&
     session.user && (
@@ -147,7 +154,6 @@ const UserSidebar = () => {
           onClick={handleMenuClick}
           selectedKeys={[selectedKey]}
         />
-        {contextHolder}
       </Sider>
     )
   );

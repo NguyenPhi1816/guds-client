@@ -1,6 +1,6 @@
 import FormAddress from "@/components/form/address/FormAddress";
+import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
 import { Button, Form, Input, Modal } from "antd";
-import useMessage from "antd/es/message/useMessage";
 import { useEffect, useState } from "react";
 
 interface IOrderReceiverModal {
@@ -27,7 +27,6 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
   const [name, setName] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [address, setAddess] = useState<string>("");
-  const [messageApi, contextHolder] = useMessage();
 
   useEffect(() => {
     setName(receiverName);
@@ -36,6 +35,9 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
   }, [receiverName, receiverPhoneNumber, receiverAddress]);
 
   const handleCancel = () => {
+    setName(receiverName);
+    setPhoneNumber(receiverPhoneNumber);
+    setAddess(receiverAddress);
     onCancel();
   };
 
@@ -49,8 +51,10 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
         address !== receiverAddress)
     ) {
       onSubmit(name, phoneNumber, address);
+      handleCancel();
+    } else {
+      handleCancel();
     }
-    handleCancel();
   };
 
   return (
@@ -70,22 +74,38 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
     >
       <Form
         name="EditReceiverInfo"
-        initialValues={{ name, phoneNumber: receiverPhoneNumber }}
+        initialValues={{ name, phoneNumber }}
         layout="vertical"
         requiredMark="optional"
       >
-        <Form.Item name="name">
+        <Form.Item
+          name="name"
+          label="Tên người nhận"
+          rules={[{ required: true, message: "Vui lòng nhập tên người nhận" }]}
+        >
           <Input
             placeholder="Tên người nhận"
             size="large"
             onChange={(e) => setName(e.target.value)}
+            value={name}
           />
         </Form.Item>
-        <Form.Item name="phoneNumber">
+        <Form.Item
+          name="phoneNumber"
+          label="Số điện thoại"
+          rules={[
+            { required: true, message: "Vui lòng nhập số điện thoại" },
+            {
+              pattern: phoneNumberRegex,
+              message: "Số điện thoại không hợp lệ",
+            },
+          ]}
+        >
           <Input
             placeholder="Số điện thoại"
             size="large"
             onChange={(e) => setPhoneNumber(e.target.value)}
+            value={phoneNumber}
           />
         </Form.Item>
         <FormAddress
@@ -93,7 +113,6 @@ const OrderReceiverModal: React.FC<IOrderReceiverModal> = ({
           onChange={(address) => setAddess(address)}
         />
       </Form>
-      {contextHolder}
     </Modal>
   );
 };

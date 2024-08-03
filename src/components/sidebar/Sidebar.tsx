@@ -10,9 +10,9 @@ import { Menu, Typography, Avatar, Button, Skeleton, Space, Flex } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useQuery } from "@tanstack/react-query";
 import { getAllCategories } from "@/services/category";
-import useMessage from "antd/es/message/useMessage";
 import { UpOutlined } from "@ant-design/icons";
 import { CATEGORIES_QUERY_KEY } from "@/services/queryKeys";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 type MenuItem = Required<MenuProps>["items"][number];
 const { Title } = Typography;
@@ -22,7 +22,7 @@ const cx = classNames.bind(styles);
 const Sidebar = () => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
   const router = useRouter();
   const pathName = usePathname();
 
@@ -67,10 +67,6 @@ const Sidebar = () => {
     }
   }, [data]);
 
-  if (isError) {
-    messageApi.error("Có lỗi xảy ra trong quá trình tải dữ liệu");
-  }
-
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     e.domEvent.preventDefault();
     router.push(`/category/${e.key}`);
@@ -83,6 +79,10 @@ const Sidebar = () => {
         : [...prevKeys, key]
     );
   };
+
+  if (isError) {
+    return router.push("/error");
+  }
 
   return (
     <Sider className={cx("sider")}>
@@ -115,7 +115,6 @@ const Sidebar = () => {
           style={{ paddingBottom: "10rem", overflowY: "scroll" }}
         />
       )}
-      {contextHolder}
     </Sider>
   );
 };

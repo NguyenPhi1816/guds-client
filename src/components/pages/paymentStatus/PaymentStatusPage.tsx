@@ -65,7 +65,7 @@ const PaymentStatusPage = () => {
               <Button onClick={() => router.push("/")}>Về trang chủ</Button>
               <Button
                 type="primary"
-                onClick={() => router.push("/user/purchase")}
+                onClick={() => router.push("/user/purchases")}
               >
                 Danh sách đơn hàng
               </Button>

@@ -11,6 +11,7 @@ import { OtpType } from "@/constant/enum/otpType";
 import useMessage from "antd/es/message/useMessage";
 import { useState } from "react";
 import PageWrapper from "@/components/wrapper/PageWrapper";
+import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
 const { Title, Text } = Typography;
 
@@ -19,7 +20,7 @@ const cx = classNames.bind(styles);
 const ForgotPassword = () => {
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [messageApi, contextHolder] = useMessage();
+  const message = useGlobalMessage();
 
   const mutation = useMutation({
     mutationFn: (phoneNumber: string) => sendOtp(phoneNumber),
@@ -27,7 +28,7 @@ const ForgotPassword = () => {
       router.push(
         `/verify-otp?type=${OtpType.FORGOT_PASSWORD}&phoneNumber=${phoneNumber}`
       ),
-    onError: (error) => messageApi.error(error.message),
+    onError: (error) => message.error(error.message),
   });
 
   const handleFinish = (value: { phoneNumber: string }) => {
@@ -76,7 +77,6 @@ const ForgotPassword = () => {
           </Form>
         </Flex>
       </Flex>
-      {contextHolder}
     </PageWrapper>
   );
 };

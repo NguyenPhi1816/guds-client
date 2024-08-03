@@ -26,5 +26,6 @@ export interface CategoryResponse extends Category {
 
 export interface CategoryBySlugResponse extends Category {
   description: string;
+  parent: Category | null;
   products: CategoryProduct[];
 }
