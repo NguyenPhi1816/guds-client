@@ -22,10 +22,23 @@ export const getProductBySlug = async (slug: string): Promise<BaseProduct> => {
 };
 
 export const searchProductByName = async (
-  name: string
+  name: string,
+  orderBy: string,
+  page: number = 1,
+  limit: number = 20,
+  fromPrice?: number,
+  toPrice?: number
 ): Promise<ProductVariant[]> => {
   try {
-    const response = await fetch(`${api}/products/search/${name}`);
+    console.log(fromPrice !== undefined && toPrice !== undefined);
+
+    const response = await fetch(
+      `${api}/products/search/${name}?orderBy=${orderBy}&page=${page}&limit=${limit}${
+        fromPrice !== undefined && toPrice !== undefined
+          ? "&fromPrice=" + fromPrice + "&toPrice=" + toPrice
+          : ""
+      }`
+    );
     const data: ProductVariant[] | ErrorResponse = await response.json();
 
     if ("error" in data) {

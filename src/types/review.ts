@@ -13,3 +13,8 @@ export type Review = {
   rating: number;
   variant: string;
 };
+
+export type ReviewResponse = {
+  reviews: Review[];
+  numberOfReviews: number;
+};

@@ -267,7 +267,9 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
           <Space align="center" className={cx("summary")}>
             {data.numberOfReviews > 0 ? (
               <>
-                <Text className={cx("summary-item")}>{data.averageRating}</Text>
+                <Text className={cx("summary-item")}>
+                  {data.averageRating.toFixed(1)}
+                </Text>
                 <Rate disabled defaultValue={data.averageRating} />
               </>
             ) : (

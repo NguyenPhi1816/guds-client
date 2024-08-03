@@ -64,6 +64,7 @@ const ProductPage = () => {
         <ProductReview
           slug={slug as string}
           averageRating={data.averageRating}
+          numberOfReview={data.numberOfReviews}
         />
       </PageWrapper>
     );

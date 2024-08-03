@@ -41,8 +41,12 @@
 }
 
 .review {
-  height: 500px;
+  min-height: 400px;
   width: 80%;
+}
+
+.review-container {
+  padding: 1rem;
 }
 
 .content {
@@ -67,4 +71,8 @@
   &-comment {
     margin-top: 1rem;
   }
+}
+
+.pagination {
+  margin-top: 1rem;
 }

@@ -1,5 +1,5 @@
 "use server";
-import { Review } from "@/types/review";
+import { Review, ReviewResponse } from "@/types/review";
 import { api } from "./api";
 import { ErrorResponse } from "@/types/error";
 import { getAccessToken } from "./auth";
@@ -96,11 +96,15 @@ export const deleteReview = async (reviewId: number) => {
 
 export const getReviewsByBaseProductSlug = async (
   slug: string,
+  page: number,
   queryParam: string
-): Promise<Review[]> => {
+): Promise<ReviewResponse> => {
   try {
-    const res = await fetch(`${api}/reviews/${slug}${queryParam}`);
-    const data: Review[] | ErrorResponse = await res.json();
+    const limit = 5;
+    const res = await fetch(
+      `${api}/reviews/${slug}?page=${page}&limit=${limit}${"&" + queryParam}`
+    );
+    const data: ReviewResponse | ErrorResponse = await res.json();
 
     if ("error" in data) {
       throw new Error(data.message);
