@@ -6,7 +6,7 @@ import classNames from "classnames/bind";
 import { HomeOutlined } from "@ant-design/icons";
 import { Breadcrumb, Space, Typography } from "antd";
 import Link from "next/link";
-import React from "react";
+import React, { ReactNode } from "react";
 
 const { Text } = Typography;
 
@@ -16,7 +16,7 @@ type ParentPage = {
 };
 
 interface ICustomBreadcrumb {
-  currentPageName: string;
+  currentPageName: ReactNode;
   parentPages?: ParentPage[];
 }
 

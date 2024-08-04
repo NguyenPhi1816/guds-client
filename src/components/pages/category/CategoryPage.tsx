@@ -4,7 +4,10 @@ import classNames from "classnames/bind";
 
 import ProductCard from "@/components/productCard";
 import PageWrapper from "@/components/wrapper/PageWrapper";
-import { getCategoryBySlug } from "@/services/category";
+import {
+  getBaseProductByCategorySlug,
+  getCategoryBySlug,
+} from "@/services/category";
 import { CATEGORY_BY_SLUG_QUERY_KEY } from "@/services/queryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { List, Typography } from "antd";
@@ -12,6 +15,9 @@ import { useParams } from "next/navigation";
 import CustomBreadcrumb from "@/components/customBreadcrumb";
 import LoadingPage from "../loadingPage";
 import ErrorPage from "../errorPage";
+import { useEffect, useState } from "react";
+import { OrderBySearchParams } from "@/constant/enum/orderBySearchParams";
+import ProductFilter from "@/components/productFilter";
 
 const { Title, Text } = Typography;
 
@@ -19,17 +25,57 @@ const cx = classNames.bind(styles);
 
 const CategoryPage = () => {
   const { slug } = useParams();
+  const [fromPrice, setFromPrice] = useState<number | undefined>(undefined);
+  const [toPrice, setToPrice] = useState<number | undefined>(undefined);
+  const [orderBy, setOrderBy] = useState<string>(
+    OrderBySearchParams.BEST_SELLING
+  );
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(20);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: [CATEGORY_BY_SLUG_QUERY_KEY],
-    queryFn: async () => await getCategoryBySlug(slug as string),
+    queryKey: [CATEGORY_BY_SLUG_QUERY_KEY, slug],
+    queryFn: async () =>
+      await getCategoryBySlug(
+        slug as string,
+        orderBy,
+        page,
+        pageSize,
+        fromPrice,
+        toPrice
+      ),
   });
+
+  const {
+    data: products,
+    isLoading: productsLoading,
+    isError: productsError,
+    refetch,
+  } = useQuery({
+    queryKey: [slug, orderBy, page, pageSize, fromPrice, toPrice],
+    queryFn: async () =>
+      await getBaseProductByCategorySlug(
+        slug as string,
+        orderBy,
+        page,
+        pageSize,
+        fromPrice,
+        toPrice
+      ),
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (slug) {
+      refetch();
+    }
+  }, [slug, orderBy, page, pageSize, fromPrice, toPrice]);
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (isError) {
+  if (isError || productsError) {
     return <ErrorPage />;
   }
 
@@ -52,15 +98,35 @@ const CategoryPage = () => {
         <Title>{data.name}</Title>
         <Text style={{ color: "var(--grey)" }}>{data.description}</Text>
         <Title level={3}>Sản phẩm trong danh mục {data.name}</Title>
-        <List
-          grid={{ gutter: 16, column: 5 }}
-          dataSource={data.products}
-          renderItem={(item) => (
-            <List.Item>
-              <ProductCard product={item} />
-            </List.Item>
-          )}
+        <ProductFilter
+          orderBy={orderBy}
+          onOrderByChange={(value) => setOrderBy(value)}
+          onPriceRangeChange={(fromPrice, toPrice) => {
+            setFromPrice(fromPrice);
+            setToPrice(toPrice);
+          }}
         />
+        {!productsLoading && data && products ? (
+          <List
+            grid={{ gutter: 16, column: 5 }}
+            dataSource={products ? products : data.products}
+            renderItem={(item) => (
+              <List.Item>
+                <ProductCard product={item} />
+              </List.Item>
+            )}
+            pagination={{
+              pageSize: pageSize,
+              total: data.products.length,
+              onChange: (page) => setPage(page),
+              onShowSizeChange: (current, number) => {
+                setPageSize(number);
+              },
+            }}
+          />
+        ) : (
+          <LoadingPage />
+        )}
       </PageWrapper>
     );
   }

@@ -56,12 +56,12 @@ const SearchPage = () => {
         Kết quả tìm kiếm cho từ khóa &quot;{name === "_" ? "" : name}&quot;
       </Title>
       <ProductFilter
-        fromPrice={fromPrice}
-        toPrice={toPrice}
         orderBy={orderBy}
-        onFromPriceChange={(value) => setFromPrice(value)}
-        onToPriceChange={(value) => setToPrice(value)}
         onOrderByChange={(value) => setOrderBy(value)}
+        onPriceRangeChange={(fromPrice, toPrice) => {
+          setFromPrice(fromPrice);
+          setToPrice(toPrice);
+        }}
       />
       {!isLoading && data ? (
         <List

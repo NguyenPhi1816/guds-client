@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { InputNumber, Radio, Select, Space, Typography } from "antd";
+import React, { useCallback, useState } from "react";
+import { InputNumber, message, Radio, Select, Space, Typography } from "antd";
 import { MinusOutlined } from "@ant-design/icons";
 import _ from "lodash";
 import { OrderBySearchParams } from "@/constant/enum/orderBySearchParams";
@@ -8,45 +8,42 @@ const { Option } = Select;
 const { Text } = Typography;
 
 interface ProductFilterProps {
-  fromPrice: number | undefined;
-  toPrice: number | undefined;
   orderBy: string;
-  onFromPriceChange: (value: number | undefined) => void;
-  onToPriceChange: (value: number | undefined) => void;
   onOrderByChange: (value: string) => void;
+  onPriceRangeChange: (fromPrice: number, toPrice: number) => void;
 }
 
 const ProductFilter: React.FC<ProductFilterProps> = ({
-  fromPrice,
-  toPrice,
   orderBy,
-  onFromPriceChange,
-  onToPriceChange,
   onOrderByChange,
+  onPriceRangeChange,
 }) => {
-  // Debounce handler functions
-  const debouncedSetFromPrice = useCallback(
-    _.debounce((value) => onFromPriceChange(value), 300),
-    [onFromPriceChange]
-  );
+  const [fromPrice, setFromPrice] = useState<number | undefined>(undefined);
+  const [toPrice, setToPrice] = useState<number | undefined>(undefined);
 
-  const debouncedSetToPrice = useCallback(
-    _.debounce((value) => onToPriceChange(value), 300),
-    [onToPriceChange]
+  // Debounce handler functions
+  const debouncedSetPriceRange = useCallback(
+    _.debounce((_fromPrice, _toPrice) => {
+      if (_fromPrice !== undefined && _toPrice !== undefined) {
+        if (_fromPrice <= _toPrice) {
+          onPriceRangeChange(_fromPrice, _toPrice);
+        } else {
+          message.error("Giá trị không hợp lệ");
+          return;
+        }
+      }
+    }, 500),
+    [onPriceRangeChange]
   );
 
   const handleFromPriceChange = (value: number | null) => {
-    if (!toPrice) {
-      onToPriceChange(0);
-    }
-    debouncedSetFromPrice(value ?? 0);
+    setFromPrice(value ?? 0);
+    debouncedSetPriceRange(value ?? 0, toPrice);
   };
 
   const handleToPriceChange = (value: number | null) => {
-    if (!fromPrice) {
-      onFromPriceChange(0);
-    }
-    debouncedSetToPrice(value ?? 0);
+    setToPrice(value ?? 0);
+    debouncedSetPriceRange(fromPrice, value ?? 0);
   };
 
   return (
@@ -95,30 +92,31 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           <InputNumber
             size="large"
             placeholder="From"
-            defaultValue={fromPrice}
             prefix={"₫"}
+            min={0}
+            style={{ width: "125px" }}
             formatter={(value) =>
               value
                 ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                : "0"
+                : ""
             }
-            min={0}
-            style={{ width: "125px" }}
+            value={fromPrice}
             onChange={handleFromPriceChange}
           />
           <MinusOutlined />
           <InputNumber
             size="large"
             placeholder="To"
-            defaultValue={toPrice}
             prefix={"₫"}
+            min={0}
+            style={{ width: "125px" }}
+            disabled={!fromPrice}
             formatter={(value) =>
               value
                 ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                : "0"
+                : ""
             }
-            min={0}
-            style={{ width: "125px" }}
+            value={toPrice}
             onChange={handleToPriceChange}
           />
         </Space>
