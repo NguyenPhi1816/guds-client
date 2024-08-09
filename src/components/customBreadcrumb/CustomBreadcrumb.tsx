@@ -36,7 +36,9 @@ const CustomBreadcrumb: React.FC<ICustomBreadcrumb> = ({
             <Link href="/">
               <Space>
                 <HomeOutlined className={cx("breadcrumb-title")} />
-                <Text className={cx("breadcrumb-title")}>Trang chủ</Text>
+                <Text ellipsis className={cx("breadcrumb-title")}>
+                  Trang chủ
+                </Text>
               </Space>
             </Link>
           ),
@@ -46,13 +48,19 @@ const CustomBreadcrumb: React.FC<ICustomBreadcrumb> = ({
             <Link href={item.href}>
               <Space>
                 <HomeOutlined className={cx("breadcrumb-title")} />
-                <Text className={cx("breadcrumb-title")}>{item.name}</Text>
+                <Text ellipsis className={cx("breadcrumb-title")}>
+                  {item.name}
+                </Text>
               </Space>
             </Link>
           ),
         })),
         {
-          title: currentPageName,
+          title: (
+            <Text ellipsis className={cx("breadcrumb-current-page")}>
+              {currentPageName}
+            </Text>
+          ),
         },
       ]}
     />

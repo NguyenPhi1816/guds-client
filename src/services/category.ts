@@ -60,7 +60,7 @@ export const getBaseProductByCategorySlug = async (
 ): Promise<CategoryProduct[]> => {
   try {
     const response = await fetch(
-      `${api}/products/category/${slug}?orderBy=${orderBy}&page=${page}&limit=${limit}${
+      `${api}/products/category/${slug}?sortBy=${orderBy}&page=${page}&limit=${limit}${
         fromPrice !== undefined && toPrice !== undefined
           ? "&fromPrice=" + fromPrice + "&toPrice=" + toPrice
           : ""

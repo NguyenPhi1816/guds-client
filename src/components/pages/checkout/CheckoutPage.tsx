@@ -139,6 +139,7 @@ const CheckoutPage: React.FC = () => {
     const orderDetails: OrderDetailRequest[] = data.map((item) => ({
       productVariantId: item.productVariantId,
       quantity: item.quantity,
+      price: item.price,
     }));
     const request: CreateOrderRequest = {
       note: note,
@@ -187,7 +188,7 @@ const CheckoutPage: React.FC = () => {
             src={record.image}
             alt={record.name}
           />
-          <Space direction="vertical">
+          <Space direction="vertical" className={cx("cart-item-name")}>
             <Title level={5} ellipsis>
               {record.name}
             </Title>

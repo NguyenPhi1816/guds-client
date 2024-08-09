@@ -88,7 +88,7 @@ const ProductReview: React.FC<IProductReview> = ({ slug, averageRating }) => {
         <Flex vertical justify="center">
           <Flex justify="center" align="end">
             <Text className={cx("overall-average-number")}>
-              {averageRating.toFixed(1)}
+              {averageRating?.toFixed(1)}
             </Text>
             <Text className={cx("overall-number")}>trên 5</Text>
           </Flex>

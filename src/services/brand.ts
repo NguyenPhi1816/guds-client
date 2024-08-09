@@ -41,7 +41,7 @@ export const getProductsByBrandSlug = async (
 ): Promise<BrandProduct[]> => {
   try {
     const response = await fetch(
-      `${api}/products/brand/${slug}?orderBy=${orderBy}&page=${page}&limit=${limit}${
+      `${api}/products/brand/${slug}?sortBy=${orderBy}&page=${page}&limit=${limit}${
         fromPrice !== undefined && toPrice !== undefined
           ? "&fromPrice=" + fromPrice + "&toPrice=" + toPrice
           : ""

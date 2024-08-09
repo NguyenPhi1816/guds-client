@@ -21,6 +21,10 @@
     font-size: 0.75rem !important;
     color: var(--grey) !important;
   }
+
+  &-name {
+    max-width: 10rem;
+  }
 }
 
 .total {

@@ -38,6 +38,7 @@ export type CreateOrderResponse = {
 export type OrderDetailRequest = {
   productVariantId: number;
   quantity: number;
+  price: number;
 };
 
 export type CreateOrderRequest = {

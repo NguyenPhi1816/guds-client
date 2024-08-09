@@ -209,7 +209,7 @@ const CartPage: React.FC = () => {
             src={record.image}
             alt={record.name}
           />
-          <Space direction="vertical">
+          <Space direction="vertical" className={cx("cart-item-name")}>
             <Title level={5} ellipsis>
               {record.name}
             </Title>

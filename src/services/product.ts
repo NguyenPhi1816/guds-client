@@ -33,7 +33,7 @@ export const searchProductByName = async (
     console.log(fromPrice !== undefined && toPrice !== undefined);
 
     const response = await fetch(
-      `${api}/products/search/${name}?orderBy=${orderBy}&page=${page}&limit=${limit}${
+      `${api}/products/search/${name}?sortBy=${orderBy}&page=${page}&limit=${limit}${
         fromPrice !== undefined && toPrice !== undefined
           ? "&fromPrice=" + fromPrice + "&toPrice=" + toPrice
           : ""

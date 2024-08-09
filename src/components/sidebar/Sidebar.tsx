@@ -10,7 +10,7 @@ import { Menu, Typography, Avatar, Button, Skeleton, Space, Flex } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useQuery } from "@tanstack/react-query";
 import { getAllCategories } from "@/services/category";
-import { UpOutlined } from "@ant-design/icons";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import { CATEGORIES_QUERY_KEY } from "@/services/queryKeys";
 import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 
@@ -59,13 +59,17 @@ const Sidebar = () => {
             shape="circle"
             type="text"
           >
-            <UpOutlined style={{ fontSize: "10px" }} />
+            {openKeys.includes(category.slug) ? (
+              <DownOutlined style={{ fontSize: "10px" }} />
+            ) : (
+              <UpOutlined style={{ fontSize: "10px" }} />
+            )}
           </Button>
         ),
       }));
       setItems(newItems);
     }
-  }, [data]);
+  }, [data, openKeys]);
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     e.domEvent.preventDefault();

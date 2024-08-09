@@ -129,8 +129,10 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
               src={orderDetail.productImage}
               alt={orderDetail.productName}
             />
-            <Space direction="vertical">
-              <Text strong>{orderDetail.productName}</Text>
+            <Space direction="vertical" className={cx("order-detail-name")}>
+              <Text strong ellipsis>
+                {orderDetail.productName}
+              </Text>
               <Text className={cx("order-detail-option-value")}>
                 {orderDetail.optionValue.join(", ")}
               </Text>

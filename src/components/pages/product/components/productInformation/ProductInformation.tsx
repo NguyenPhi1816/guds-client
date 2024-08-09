@@ -230,6 +230,8 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
     return <ErrorPage />;
   }
 
+  console.log(data.averageRating);
+
   return (
     data &&
     variant && (
@@ -268,7 +270,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
             {data.numberOfReviews > 0 ? (
               <>
                 <Text className={cx("summary-item")}>
-                  {data.averageRating.toFixed(1)}
+                  {data.averageRating?.toFixed(1)}
                 </Text>
                 <Rate disabled defaultValue={data.averageRating} />
               </>
@@ -287,32 +289,37 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
           <Title level={2} className={cx("price")}>
             {formatCurrency(variant.price)}
           </Title>
-          <Title level={5}>Tùy chọn</Title>
-          <Space direction="vertical" className={cx("option-values")}>
-            {data.optionValues.map((optionValue) => (
-              <Space key={optionValue.option} direction="vertical">
-                <Text>{optionValue.option}</Text>
-                <Space>
-                  {optionValue.values.map((value) => (
-                    <Button
-                      key={value}
-                      className={cx("value-btn", {
-                        "value-btn-selected": isValueSelected(
-                          optionValue.option,
-                          value
-                        ),
-                      })}
-                      onClick={() =>
-                        handleSelectValue(optionValue.option, value)
-                      }
-                    >
-                      {value}
-                    </Button>
-                  ))}
-                </Space>
+          {data.optionValues.length > 0 && (
+            <>
+              {" "}
+              <Title level={5}>Tùy chọn</Title>
+              <Space direction="vertical" className={cx("option-values")}>
+                {data.optionValues.map((optionValue) => (
+                  <Space key={optionValue.option} direction="vertical">
+                    <Text>{optionValue.option}</Text>
+                    <Space>
+                      {optionValue.values.map((value) => (
+                        <Button
+                          key={value}
+                          className={cx("value-btn", {
+                            "value-btn-selected": isValueSelected(
+                              optionValue.option,
+                              value
+                            ),
+                          })}
+                          onClick={() =>
+                            handleSelectValue(optionValue.option, value)
+                          }
+                        >
+                          {value}
+                        </Button>
+                      ))}
+                    </Space>
+                  </Space>
+                ))}
               </Space>
-            ))}
-          </Space>
+            </>
+          )}
           <Title level={5}>Số lượng</Title>
           <Space className={cx("quantity")}>
             <Button
