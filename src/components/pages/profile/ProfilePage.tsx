@@ -26,7 +26,7 @@ import {
 } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PROFILE_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
-import { getProfile, updateProfile } from "@/services/user";
+import { getProfile } from "@/services/user";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { phoneNumberRegex } from "@/constant/regex/phoneNumber";
@@ -35,6 +35,7 @@ import { UpdateProfileRequest } from "@/types/user";
 import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import LoadingPage from "../loadingPage";
 import ErrorPage from "../errorPage";
+import { updateProfile } from "@/services/user-client";
 
 dayjs.extend(customParseFormat);
 
@@ -85,12 +86,9 @@ const ProfilePage = () => {
       try {
         setLoading(true);
         if (data) {
-          let newImageUrl = data.image;
-          if (image) {
-            const res = await uploadImages([image]);
-            newImageUrl = res.paths[0];
-          }
-          requestBody.image = newImageUrl;
+          requestBody.image = image;
+          requestBody.imageUrl = data.image;
+          requestBody.imageId = data.imageId;
           const updatedProfile = await updateProfile(requestBody);
           return updatedProfile;
         }
@@ -163,6 +161,8 @@ const ProfilePage = () => {
           ).toISOString(),
           gender: values.gender,
           image: null, // This will be updated in the mutation function if there is an image
+          imageUrl: null,
+          imageId: null,
         };
         updateMutation.mutate(requestBody);
       },

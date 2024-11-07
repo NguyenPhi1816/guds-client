@@ -1,8 +1,4 @@
-import {
-  DEFAULT_REDIRECT,
-  PUBLIC_ROUTES,
-  REFRESH_TOKEN_REDIRECT,
-} from "@/lib/routes";
+import { DEFAULT_REDIRECT, PUBLIC_ROUTES } from "@/lib/routes";
 import { auth } from "./auth";
 import { NextResponse } from "next/server";
 

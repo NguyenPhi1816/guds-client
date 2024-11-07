@@ -55,11 +55,13 @@ const ProductPage = () => {
           }))}
         />
         <ProductInformation data={data} spid={spid} />
-        <ProductCategory
-          title="Các sản phẩm liên quan"
-          href={`/category/${data.categories[0].slug}`}
-          data={data.relatedProducts}
-        />
+        {data.relatedProducts.length > 0 && (
+          <ProductCategory
+            title="Các sản phẩm liên quan"
+            href={`/category/${data.categories[0].slug}`}
+            data={data.relatedProducts}
+          />
+        )}
         <ProductDescription desc={data.description} />
         <ProductReview
           slug={slug as string}

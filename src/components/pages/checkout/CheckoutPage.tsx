@@ -33,6 +33,7 @@ import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import LoadingPage from "../loadingPage";
 import ErrorPage from "../errorPage";
 import { error } from "console";
+import { getProfile } from "@/services/user";
 
 const { Title, Text } = Typography;
 
@@ -103,11 +104,21 @@ const CheckoutPage: React.FC = () => {
     },
   });
 
+  const getProfileMutation = useMutation({
+    mutationFn: (accessToken: string) => getProfile(accessToken),
+    onSuccess: (data) => {
+      setName(data.firstName + " " + data.lastName);
+      setPhoneNumber(data.phoneNumber);
+      setAddess(data.address);
+    },
+    onError: () => {
+      message.error("Lấy thông tin người dùng thất bại");
+    },
+  });
+
   useEffect(() => {
     if (session && session.user) {
-      setName(session.user.name);
-      setPhoneNumber(session.user.phoneNumber);
-      setAddess(session.user.address);
+      getProfileMutation.mutate(session.user.accessToken);
     }
   }, [session]);
 
@@ -185,15 +196,15 @@ const CheckoutPage: React.FC = () => {
         <Flex align="center">
           <img
             className={cx("cart-item-img")}
-            src={record.image}
-            alt={record.name}
+            src={record.productImage}
+            alt={record.productName}
           />
           <Space direction="vertical" className={cx("cart-item-name")}>
             <Title level={5} ellipsis>
-              {record.name}
+              {record.productName}
             </Title>
             <Text className={cx("cart-item-option-value")}>
-              {record.optionValues.join(", ")}
+              {record.optionValue.join(", ")}
             </Text>
           </Space>
         </Flex>

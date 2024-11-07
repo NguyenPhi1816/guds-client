@@ -5,12 +5,8 @@ import classNames from "classnames/bind";
 const cx = classNames.bind(styles);
 
 const images = [
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635430/d7mp4046rewhcn8avsrq.jpg",
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635430/zzrm4rnvmnyg8wlkh8jx.jpg",
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635429/y2zua5yefzaq9w1e8xl0.jpg",
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635431/g3fmgzoyadzcb9dswzat.jpg",
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635431/wwjbs4vfdijfglcfyo0a.png",
-  "https://res.cloudinary.com/dgw0an06z/image/upload/v1721635430/me2b5kcr7xtmsvoqkxzh.jpg",
+  "https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/34b5bf180145769.6505ae7623131.jpg",
+  "https://www.timesbull.com/wp-content/uploads/2024/09/Samsung-Galaxy-S24-Ultra-1024x576.webp",
 ];
 
 const HomeCarousel = () => {

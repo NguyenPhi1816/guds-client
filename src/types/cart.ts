@@ -1,8 +1,8 @@
 export type Cart = {
   productVariantId: number;
-  name: string;
-  image: string;
+  productName: string;
+  productImage: string;
   price: number;
-  optionValues: string[];
+  optionValue: string[];
   quantity: number;
 };

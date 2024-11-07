@@ -85,7 +85,8 @@ const Sidebar = () => {
   };
 
   if (isError) {
-    return router.push("/error");
+    router.push("/error");
+    return <div></div>;
   }
 
   return (

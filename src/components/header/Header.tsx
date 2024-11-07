@@ -136,7 +136,8 @@ const AppHeader = () => {
   ];
 
   if (isError) {
-    return router.push("/error");
+    router.push("/error");
+    return <div></div>;
   }
 
   return (
@@ -205,8 +206,8 @@ const AppHeader = () => {
                   <Avatar
                     shape="circle"
                     src={
-                      sessionQuery.data.user.image
-                        ? sessionQuery.data.user.image
+                      sessionQuery.data.user.user.image
+                        ? sessionQuery.data.user.user.image
                         : fallbackUserAvatarUrl
                     }
                   />

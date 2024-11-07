@@ -77,8 +77,8 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
       message.success("Thêm vào giỏ hàng thành công");
       queryClient.setQueryData([CART_QUERY_KEY], data);
     },
-    onError: () => {
-      message.error("Thêm vào giỏ hàng thất bại");
+    onError: (error) => {
+      message.error(error.message);
     },
   });
 
@@ -209,9 +209,9 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
     if (variant) {
       const product: Cart = {
         productVariantId: variant.id,
-        image: variant.image,
-        name: data.name,
-        optionValues: variant.optionValue.map((option) => option.value),
+        productImage: variant.image,
+        productName: data.name,
+        optionValue: variant.optionValue.map((option) => option.value),
         price: variant.price,
         quantity: quantity,
       };
@@ -297,7 +297,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
                 {data.optionValues.map((optionValue) => (
                   <Space key={optionValue.option} direction="vertical">
                     <Text>{optionValue.option}</Text>
-                    <Space>
+                    <div className={cx("option-values-container")}>
                       {optionValue.values.map((value) => (
                         <Button
                           key={value}
@@ -314,7 +314,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
                           {value}
                         </Button>
                       ))}
-                    </Space>
+                    </div>
                   </Space>
                 ))}
               </Space>
@@ -343,24 +343,30 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
             </Button>
           </Space>
           {data.status === productStatus.ACTIVE ? (
-            <Space align="center">
-              <Button
-                size="large"
-                className={cx("btn-add-to-card")}
-                onClick={handleAddProductToCart}
-              >
-                <ShoppingCartOutlined />
-                Thêm vào giỏ hàng
-              </Button>
-              <Button
-                size="large"
-                type="primary"
-                className={cx("btn-buy")}
-                onClick={handleCheckout}
-              >
-                Mua hàng
-              </Button>
-            </Space>
+            variant.quantity > 0 ? (
+              <Space align="center">
+                <Button
+                  size="large"
+                  className={cx("btn-add-to-card")}
+                  onClick={handleAddProductToCart}
+                >
+                  <ShoppingCartOutlined />
+                  Thêm vào giỏ hàng
+                </Button>
+                <Button
+                  size="large"
+                  type="primary"
+                  className={cx("btn-buy")}
+                  onClick={handleCheckout}
+                >
+                  Mua hàng
+                </Button>
+              </Space>
+            ) : (
+              <Title level={4} className={cx("inactive-status")}>
+                Sản phẩm hết hàng
+              </Title>
+            )
           ) : (
             <Title level={4} className={cx("inactive-status")}>
               Sản phẩm đã ngừng kinh doanh

@@ -6,8 +6,16 @@ export type LoginRequest = {
 };
 
 export type LoginResponse = {
-  access_token: string;
-  refresh_token: string;
+  accessToken: string;
+  expires: number;
+  user: {
+    name: string;
+    email: string;
+    image: string;
+    id: number;
+  };
+  provider: string;
+  providerAccountId: number;
 };
 
 export type SignUpRequest = {

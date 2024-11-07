@@ -21,6 +21,8 @@ export const getProfile = async (accessToken?: string) => {
     });
     const profile: ProfileResponse | ErrorResponse = await res.json();
 
+    console.log(profile);
+
     if ("error" in profile) {
       throw new Error(profile.message);
     }

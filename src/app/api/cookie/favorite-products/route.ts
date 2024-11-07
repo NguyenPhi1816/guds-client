@@ -16,12 +16,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const requestHeader = new Headers(request.headers);
-  const productStr = requestHeader.get("product");
+  const { product } = await request.json(); // Extract product from request body
 
-  if (!productStr) return NextResponse.error();
-
-  const product: CategoryProduct | ProductVariant = JSON.parse(productStr);
+  if (!product) return NextResponse.error();
 
   const favoriteProductsStr = cookies().get(name)?.value;
   let favoriteProducts: (CategoryProduct | ProductVariant)[] = [];

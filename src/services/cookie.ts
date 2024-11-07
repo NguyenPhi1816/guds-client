@@ -17,13 +17,15 @@ export const getFavoriteProducts = async () => {
 export const setFavoriteProducts = async (
   product: CategoryProduct | ProductVariant
 ) => {
+  console.log(JSON.stringify(product));
+
   try {
     const res = await fetch("/api/cookie/favorite-products", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        product: JSON.stringify(product),
       },
+      body: JSON.stringify({ product }), // Include product in body
     });
     const data = await res.json();
     return data;

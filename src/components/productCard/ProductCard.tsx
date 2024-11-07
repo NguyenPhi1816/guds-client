@@ -44,7 +44,9 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
       message.success("Thêm vào danh sách yêu thích thành công");
       queryClient.setQueryData([FAVORITE_PRODUCT_QUERY_KEY], data);
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error.message);
+
       message.error("Thêm vào danh sách yêu thích thất bại");
     },
   });

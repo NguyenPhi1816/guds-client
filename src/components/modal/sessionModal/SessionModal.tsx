@@ -15,15 +15,9 @@ const SessionModal = () => {
 
   useEffect(() => {
     if (session) {
-      const refresh_token = session.user.refresh_token;
-      const payload = JSON.parse(
-        Buffer.from(refresh_token.split(".")[1], "base64").toString()
-      );
-      const exp = payload.exp * 1000 - Date.now();
-
       const timerId = setTimeout(() => {
         showModal();
-      }, exp);
+      }, new Date(session.user.expires).getTime() - Date.now());
 
       return () => {
         clearTimeout(timerId);

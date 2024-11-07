@@ -9,6 +9,7 @@ export type ProfileResponse = {
   gender: string;
   dateOfBirth: string;
   image: string | null;
+  imageId: string | null;
   email: string;
   status: string;
   role: string;
@@ -22,5 +23,7 @@ export type UpdateProfileRequest = {
   lastName: string;
   dateOfBirth: string;
   gender: string;
-  image: string | null;
+  image: File | null;
+  imageUrl: string | null;
+  imageId: string | null;
 };

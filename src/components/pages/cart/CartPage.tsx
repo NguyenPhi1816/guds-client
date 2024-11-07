@@ -206,15 +206,15 @@ const CartPage: React.FC = () => {
         <Flex align="center">
           <img
             className={cx("cart-item-img")}
-            src={record.image}
-            alt={record.name}
+            src={record.productImage}
+            alt={record.productName}
           />
           <Space direction="vertical" className={cx("cart-item-name")}>
             <Title level={5} ellipsis>
-              {record.name}
+              {record.productName}
             </Title>
             <Text className={cx("cart-item-option-value")}>
-              {record.optionValues.join(", ")}
+              {record.optionValue ? record.optionValue.join(", ") : ""}
             </Text>
           </Space>
         </Flex>
@@ -323,15 +323,15 @@ const CartPage: React.FC = () => {
                     <Col>
                       <Image
                         width={50}
-                        src={product.image}
-                        alt={product.name}
+                        src={product.productImage}
+                        alt={product.productName}
                       />
                     </Col>
                     <Col>
-                      <Text strong>{product.name}</Text>
+                      <Text strong>{product.productName}</Text>
                       <br />
                       <Text className={cx("summary-text")}>
-                        {product.optionValues.join(", ")}
+                        {product.optionValue.join(", ")}
                       </Text>
                       <br />
                       <Text className={cx("summary-text")}>

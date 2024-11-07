@@ -8,7 +8,7 @@ export const getProductBySlug = async (slug: string): Promise<BaseProduct> => {
   console.log(slug);
 
   try {
-    const response = await fetch(`${api}/products/${slug}`);
+    const response = await fetch(`${api}/client/products/${slug}`);
     const data: BaseProduct | ErrorResponse = await response.json();
 
     if ("error" in data) {
