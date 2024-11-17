@@ -1,6 +1,8 @@
 import { CategoryProduct } from "@/types/category";
 import { FavoriteProductsResponse } from "@/types/cookie";
 import { ProductVariant } from "@/types/product";
+import { getAccessToken } from "./auth";
+import { ErrorResponse } from "@/types/error";
 
 export const getFavoriteProducts = async () => {
   try {
@@ -17,8 +19,6 @@ export const getFavoriteProducts = async () => {
 export const setFavoriteProducts = async (
   product: CategoryProduct | ProductVariant
 ) => {
-  console.log(JSON.stringify(product));
-
   try {
     const res = await fetch("/api/cookie/favorite-products", {
       method: "POST",
@@ -28,6 +28,32 @@ export const setFavoriteProducts = async (
       body: JSON.stringify({ product }), // Include product in body
     });
     const data = await res.json();
+
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      console.log(product.id, product.categoryIds);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_GUDS_API}/users/save-user-activity`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + accessToken,
+          },
+          method: "POST",
+          body: JSON.stringify({
+            baseProductId: product.id,
+            categoryIds: product.categoryIds,
+            activityType: "FAVORITE",
+          }),
+        }
+      );
+      const result: any | ErrorResponse = await res.json();
+
+      if ("error" in result) {
+        throw new Error(result.message);
+      }
+    }
+
     return data;
   } catch (error) {
     throw error;

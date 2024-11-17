@@ -30,7 +30,7 @@ import { addProductToCart } from "@/services/cart";
 import { CART_QUERY_KEY, SESSION_QUERY_KEY } from "@/services/queryKeys";
 import { getSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Cart } from "@/types/cart";
+import { Cart, ExtendedCart } from "@/types/cart";
 import qs from "query-string";
 import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import LoadingPage from "@/components/pages/loadingPage";
@@ -72,7 +72,12 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
 
   const mutation = useMutation({
     mutationFn: (params: { id: number; quantity: number }) =>
-      addProductToCart(params.id, params.quantity),
+      addProductToCart(
+        params.id,
+        params.quantity,
+        data.id,
+        data.categories.map((category) => category.id)
+      ),
     onSuccess: (data) => {
       message.success("Thêm vào giỏ hàng thành công");
       queryClient.setQueryData([CART_QUERY_KEY], data);
@@ -207,7 +212,9 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
 
   const handleCheckout = () => {
     if (variant) {
-      const product: Cart = {
+      const product: ExtendedCart = {
+        baseProductId: data.id,
+        categoryIds: data.categories.map((category) => category.id),
         productVariantId: variant.id,
         productImage: variant.image,
         productName: data.name,

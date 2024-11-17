@@ -17,7 +17,7 @@ import {
   Input,
 } from "antd";
 import PageWrapper from "@/components/wrapper/PageWrapper";
-import { Cart } from "@/types/cart";
+import { Cart, ExtendedCart } from "@/types/cart";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useMessage from "antd/es/message/useMessage";
 import { useRouter } from "next/navigation";
@@ -45,7 +45,7 @@ const CheckoutPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
-  const [data, setData] = useState<Cart[]>([]);
+  const [data, setData] = useState<ExtendedCart[]>([]);
   const [fromCart, setFromCart] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     PaymentMethod.CASH
@@ -148,6 +148,8 @@ const CheckoutPage: React.FC = () => {
 
   const handleCheckout = () => {
     const orderDetails: OrderDetailRequest[] = data.map((item) => ({
+      baseProductId: item.baseProductId,
+      categoryIds: item.categoryIds,
       productVariantId: item.productVariantId,
       quantity: item.quantity,
       price: item.price,

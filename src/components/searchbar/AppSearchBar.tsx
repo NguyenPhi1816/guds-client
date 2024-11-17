@@ -27,7 +27,7 @@ const AppSearchBar = () => {
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       router.push(`/search?name=${encodeURIComponent(value)}`);
-    }, 500),
+    }, 1000),
     []
   );
 

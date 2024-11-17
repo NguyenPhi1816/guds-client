@@ -28,6 +28,7 @@ export type BaseProductOptionValue = {
 
 export type ProductVariant = {
   id: number;
+  categoryIds: number[];
   slug: string;
   name: string;
   variantId: number;

@@ -36,6 +36,8 @@ export type CreateOrderResponse = {
 };
 
 export type OrderDetailRequest = {
+  baseProductId: number;
+  categoryIds: number[];
   productVariantId: number;
   quantity: number;
   price: number;

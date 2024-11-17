@@ -3,12 +3,21 @@
 import { api } from "./api";
 import { ErrorResponse } from "@/types/error";
 import { BaseProduct, ProductVariant } from "@/types/product";
+import { getAccessToken } from "./auth";
 
 export const getProductBySlug = async (slug: string): Promise<BaseProduct> => {
-  console.log(slug);
-
   try {
-    const response = await fetch(`${api}/client/products/${slug}`);
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${api}/client/products/${slug}`,
+      accessToken
+        ? {
+            headers: {
+              Authorization: "Bearer " + accessToken,
+            },
+          }
+        : {}
+    );
     const data: BaseProduct | ErrorResponse = await response.json();
 
     if ("error" in data) {
@@ -30,14 +39,20 @@ export const searchProductByName = async (
   toPrice?: number
 ): Promise<ProductVariant[]> => {
   try {
-    console.log(fromPrice !== undefined && toPrice !== undefined);
-
+    const accessToken = await getAccessToken();
     const response = await fetch(
       `${api}/products/search/${name}?sortBy=${orderBy}&page=${page}&limit=${limit}${
         fromPrice !== undefined && toPrice !== undefined
           ? "&fromPrice=" + fromPrice + "&toPrice=" + toPrice
           : ""
-      }`
+      }`,
+      accessToken
+        ? {
+            headers: {
+              Authorization: "Bearer " + accessToken,
+            },
+          }
+        : {}
     );
     const data: ProductVariant[] | ErrorResponse = await response.json();
 

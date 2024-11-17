@@ -2,10 +2,10 @@
 import { ErrorResponse } from "@/types/error";
 import { api } from "./api";
 import { getAccessToken } from "./auth";
-import { Cart } from "@/types/cart";
+import { Cart, ExtendedCart } from "@/types/cart";
 import { CartQuantityUpdateType } from "@/constant/enum/cartQuantityUpdateType";
 
-export const getCart = async (): Promise<Cart[]> => {
+export const getCart = async (): Promise<ExtendedCart[]> => {
   try {
     const accessToken = await getAccessToken();
     if (accessToken) {
@@ -16,7 +16,7 @@ export const getCart = async (): Promise<Cart[]> => {
         },
         method: "GET",
       });
-      const result: Cart[] | ErrorResponse = await res.json();
+      const result: ExtendedCart[] | ErrorResponse = await res.json();
 
       if ("error" in result) {
         throw new Error(result.message);
@@ -33,7 +33,9 @@ export const getCart = async (): Promise<Cart[]> => {
 
 export const addProductToCart = async (
   productVariantId: number,
-  quantity: number
+  quantity: number,
+  baseProductId: number,
+  categoryIds: number[]
 ): Promise<Cart[]> => {
   try {
     const accessToken = await getAccessToken();
@@ -44,7 +46,12 @@ export const addProductToCart = async (
           Authorization: "Bearer " + accessToken,
         },
         method: "POST",
-        body: JSON.stringify({ productVariantId, quantity }),
+        body: JSON.stringify({
+          productVariantId,
+          quantity,
+          baseProductId,
+          categoryIds,
+        }),
       });
       const result: Cart[] | ErrorResponse = await res.json();
 
