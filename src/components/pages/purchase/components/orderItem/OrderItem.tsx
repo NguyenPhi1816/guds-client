@@ -94,6 +94,34 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
     });
   };
 
+  const totalPrice = data.orderDetails.reduce(
+    (prev, curr) => prev + curr.price * curr.quantity,
+    0
+  );
+
+  const productDiscount = data.orderDetails.reduce((prev, orderDetail) => {
+    let discount = 0;
+    if (orderDetail.discount && orderDetail.discount.type === "PERCENTAGE") {
+      discount = (orderDetail.discount.value / 100) * orderDetail.price;
+    } else if (orderDetail.discount && orderDetail.discount.type === "FIXED") {
+      discount = orderDetail.discount.value;
+    }
+    return prev + discount;
+  }, 0);
+
+  let orderVoucher = 0;
+  if (data.voucher) {
+    if (data.voucher.type === "PERCENTAGE") {
+      orderVoucher = (data.voucher.value / 100) * totalPrice;
+    } else if (data.voucher.type === "FIXED") {
+      orderVoucher = data.voucher.value;
+    }
+
+    if (orderVoucher > data.voucher.maxDiscountValue) {
+      orderVoucher = data.voucher.maxDiscountValue;
+    }
+  }
+
   return (
     <div className={cx("wrapper")}>
       <Flex justify="space-between">
@@ -149,15 +177,16 @@ const OrderItem: React.FC<IOrderItem> = ({ data }) => {
       ))}
       <Flex>
         <div style={{ flex: 1 }}></div>
-        <Space>
+        <Space direction="vertical">
+          {productDiscount > 0 && (
+            <Text>Giảm giá sản phẩm: -{formatCurrency(productDiscount)}</Text>
+          )}
+          {orderVoucher > 0 && (
+            <Text>Giảm giá đơn hàng: -{formatCurrency(orderVoucher)}</Text>
+          )}
           <Text strong className={cx("total")}>
             Tổng cộng:{" "}
-            {formatCurrency(
-              data.orderDetails.reduce(
-                (prev, curr) => prev + curr.price * curr.quantity,
-                0
-              )
-            )}
+            {formatCurrency(totalPrice - productDiscount - orderVoucher)}
           </Text>
         </Space>
       </Flex>

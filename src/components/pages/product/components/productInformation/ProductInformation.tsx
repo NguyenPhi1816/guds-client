@@ -221,6 +221,7 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
         optionValue: variant.optionValue.map((option) => option.value),
         price: variant.price,
         quantity: quantity,
+        discount: data.discount,
       };
       const queryString = qs.stringify({
         products: JSON.stringify([product]),
@@ -236,8 +237,6 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
   if (sessionError) {
     return <ErrorPage />;
   }
-
-  console.log(data.averageRating);
 
   return (
     data &&
@@ -293,9 +292,35 @@ const ProductInformation: React.FC<IProductInformation> = ({ data, spid }) => {
               {data.numberOfReviews} lượt đánh giá
             </Text>
           </Space>
-          <Title level={2} className={cx("price")}>
-            {formatCurrency(variant.price)}
-          </Title>
+          {data.discount.value ? (
+            <Flex vertical gap={16}>
+              <Text
+                className={cx("del-price")}
+                style={{ textDecoration: "line-through" }}
+              >
+                {formatCurrency(variant.price)}
+              </Text>
+              {data.discount.type === "PERCENTAGE" ? (
+                <Title level={2} className={cx("price", "promotion-price")}>
+                  {formatCurrency(
+                    variant.price * ((100 - data.discount.value) / 100)
+                  )}
+                </Title>
+              ) : (
+                <Title level={2} className={cx("price", "promotion-price")}>
+                  {formatCurrency(
+                    variant.price - data.discount.value > 0
+                      ? variant.price - data.discount.value
+                      : 0
+                  )}
+                </Title>
+              )}
+            </Flex>
+          ) : (
+            <Title level={2} className={cx("price")}>
+              {formatCurrency(variant.price)}
+            </Title>
+          )}
           {data.optionValues.length > 0 && (
             <>
               {" "}

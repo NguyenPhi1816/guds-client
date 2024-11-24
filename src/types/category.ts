@@ -1,4 +1,5 @@
 import category from "@/components/pages/category";
+import { Discount } from "./product";
 
 export type Category = {
   id: number;
@@ -9,7 +10,7 @@ export type Category = {
 
 export type CategoryProduct = {
   id: number;
-  categoryIds: number;
+  categoryIds: number[];
   slug: string;
   name: string;
   variantId: number;
@@ -18,6 +19,7 @@ export type CategoryProduct = {
   averageRating: number;
   numberOfReviews: number;
   numberOfPurchases: number;
+  discount: Discount;
 };
 
 export interface CategoryResponse extends Category {

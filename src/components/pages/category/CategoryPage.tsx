@@ -79,6 +79,8 @@ const CategoryPage = () => {
     return <ErrorPage />;
   }
 
+  console.log(data);
+
   if (data) {
     return (
       <PageWrapper>

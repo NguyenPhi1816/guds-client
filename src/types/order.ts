@@ -1,6 +1,8 @@
 import { OrderStatus } from "@/constant/enum/orderStatus";
 import { PaymentMethod } from "@/constant/enum/paymentMethod";
 import { PaymentStatus } from "@/constant/enum/paymentStatus";
+import { Discount } from "./product";
+import { Voucher } from "./promotion";
 
 export type Order = {
   id: number;
@@ -41,6 +43,7 @@ export type OrderDetailRequest = {
   productVariantId: number;
   quantity: number;
   price: number;
+  discountId: number | null;
 };
 
 export type CreateOrderRequest = {
@@ -52,6 +55,8 @@ export type CreateOrderRequest = {
   receiverName: string;
   receiverPhoneNumber: string;
   receiverAddress: string;
+  voucherId: number | null;
+  totalAmount: number;
 };
 
 export type OrderFullReview = {
@@ -70,6 +75,7 @@ export type OrderFullDetail = {
   quantity: number;
   price: number;
   review: OrderFullReview | null;
+  discount: Discount;
 };
 
 export type OrderFullPayment = {
@@ -92,4 +98,5 @@ export type OrderFull = {
   status: string;
   orderDetails: OrderFullDetail[];
   payment: OrderFullPayment;
+  voucher: Voucher;
 };

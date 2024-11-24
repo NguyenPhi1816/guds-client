@@ -37,6 +37,7 @@ export type ProductVariant = {
   averageRating: number;
   numberOfReviews: number;
   numberOfPurchases: number;
+  discount: Discount;
 };
 
 export type BaseProductVariant = {
@@ -45,6 +46,12 @@ export type BaseProductVariant = {
   quantity: number;
   optionValue: BaseProductOptionValue[];
   price: number;
+};
+
+export type Discount = {
+  discountId: number;
+  type: string;
+  value: number;
 };
 
 export type BaseProduct = {
@@ -62,4 +69,5 @@ export type BaseProduct = {
   optionValues: BaseProductOptionValues[];
   relatedProducts: ProductVariant[];
   productVariants: BaseProductVariant[];
+  discount: Discount;
 };

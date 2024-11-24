@@ -26,7 +26,7 @@ import {
 } from "@ant-design/icons";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
-import { Cart } from "@/types/cart";
+import { Cart, ExtendedCart } from "@/types/cart";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CART_QUERY_KEY } from "@/services/queryKeys";
 import { deleteCart, getCart, updateCartQuantity } from "@/services/cart";
@@ -37,6 +37,7 @@ import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import CustomBreadcrumb from "@/components/customBreadcrumb";
 import ErrorPage from "../errorPage";
 import LoadingPage from "../loadingPage";
+import { formatCurrency } from "@/formater/CurrencyFormater";
 
 const { Title, Text } = Typography;
 
@@ -47,9 +48,10 @@ const cx = classNames.bind(styles);
 const CartPage: React.FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [selectedProducts, setSelectedProducts] = useState<Cart[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ExtendedCart[]>([]);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const message = useGlobalMessage();
+  const [totalDiscount, setTotalDiscount] = useState<number>(0);
 
   const { data, isLoading, isError } = useQuery({
     queryFn: async () => await getCart(),
@@ -81,7 +83,23 @@ const CartPage: React.FC = () => {
     },
   });
 
-  const handleSelect = (product: Cart, checked: boolean) => {
+  useEffect(() => {
+    setTotalDiscount(
+      selectedProducts.reduce((prev, item) => {
+        if (Object.keys(item.discount).length > 0) {
+          if (item.discount.type === "PERCENTAGE") {
+            prev =
+              prev + item.price * item.quantity * (item.discount.value / 100);
+          } else {
+            prev = prev + item.discount.value;
+          }
+        }
+        return prev;
+      }, 0)
+    );
+  }, [selectedProducts]);
+
+  const handleSelect = (product: ExtendedCart, checked: boolean) => {
     if (checked) {
       setSelectedProducts((prev) => [...prev, product]);
     } else {
@@ -187,14 +205,14 @@ const CartPage: React.FC = () => {
       ),
       dataIndex: "select",
       key: "select",
-      render: (text: string, record: Cart) => (
+      render: (text: string, record: ExtendedCart) => (
         <Checkbox
           checked={selectedProducts.some(
             (item) => item.productVariantId === record.productVariantId
           )}
-          onChange={(e: CheckboxChangeEvent) =>
-            handleSelect(record, e.target.checked)
-          }
+          onChange={(e: CheckboxChangeEvent) => {
+            handleSelect(record, e.target.checked);
+          }}
         />
       ),
     },
@@ -222,13 +240,30 @@ const CartPage: React.FC = () => {
     },
     {
       title: "Đơn Giá",
-      dataIndex: "price",
       key: "price",
-      render: (text: number) => (
-        <Flex align="center">
-          <Text>{text.toLocaleString()} VND</Text>
-        </Flex>
-      ),
+      render: (record: ExtendedCart) => {
+        let myPrice = record.price;
+
+        if (record.discount.value && record.discount.type === "PERCENTAGE") {
+          myPrice = record.price * ((100 - record.discount.value) / 100);
+        } else if (record.discount.value && record.discount.type === "FIXED") {
+          myPrice = record.price - record.discount.value;
+          if (myPrice < 0) myPrice = 0;
+        }
+
+        return (
+          <Flex justify="center" vertical>
+            {record.discount.value && (
+              <Text
+                style={{ fontSize: "11px", textDecoration: "line-through" }}
+              >
+                {formatCurrency(record.price)}
+              </Text>
+            )}
+            <Text style={{ fontWeight: 500 }}>{formatCurrency(myPrice)}</Text>
+          </Flex>
+        );
+      },
     },
     {
       title: "Số lượng",
@@ -263,9 +298,22 @@ const CartPage: React.FC = () => {
     {
       title: "Tổng cộng",
       key: "total",
-      render: (text: string, record: Cart) => (
-        <Text>{(record.price * record.quantity).toLocaleString()} VND</Text>
-      ),
+      render: (record: ExtendedCart) => {
+        let myPrice = record.price;
+
+        if (record.discount.value && record.discount.type === "PERCENTAGE") {
+          myPrice = record.price * ((100 - record.discount.value) / 100);
+        } else if (record.discount.value && record.discount.type === "FIXED") {
+          myPrice = record.price - record.discount.value;
+          if (myPrice < 0) myPrice = 0;
+        }
+
+        return (
+          <Flex align="center">
+            <Text>{formatCurrency(myPrice * record.quantity)}</Text>
+          </Flex>
+        );
+      },
     },
     {
       title: "Thao tác",
@@ -353,10 +401,19 @@ const CartPage: React.FC = () => {
             ) : (
               <Text>Vui lòng chọn sản phẩm</Text>
             )}
+            {totalDiscount > 0 && (
+              <>
+                <Divider />
+                <Row className={cx("totalRow")}>
+                  <Text strong>Giảm giá sản phẩm:</Text>
+                  <Text strong>-{formatCurrency(totalDiscount)}</Text>
+                </Row>
+              </>
+            )}
             <Divider />
             <Row className={cx("totalRow")}>
               <Text strong>Tổng cộng:</Text>
-              <Text strong>{totalPrice.toLocaleString()} VND</Text>
+              <Text strong>{formatCurrency(totalPrice - totalDiscount)}</Text>
             </Row>
             <Divider />
             <Button

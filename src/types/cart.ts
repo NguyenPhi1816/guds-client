@@ -1,3 +1,5 @@
+import { Discount } from "./product";
+
 export type Cart = {
   productVariantId: number;
   productName: string;
@@ -16,4 +18,5 @@ export type ExtendedCart = {
   price: number;
   optionValue: string[];
   quantity: number;
+  discount: Discount;
 };

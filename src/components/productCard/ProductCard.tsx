@@ -73,6 +73,15 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
   //   return router.push("/error");
   // }
 
+  let discount = 0;
+  if (product.discount && Object.keys(product.discount).length > 0) {
+    if (product.discount.type === "PERCENTAGE") {
+      discount = (product.discount.value / 100) * product.price;
+    } else if (product.discount.type === "FIXED") {
+      discount = product.discount.value;
+    }
+  }
+
   return (
     <Link href={`/product/${product.slug}?spid=${product.variantId}`}>
       <Card
@@ -109,7 +118,26 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
         <Meta
           title={product.name}
           description={
-            <p className={cx("price")}>{formatCurrency(product.price)}</p>
+            <>
+              {discount > 0 ? (
+                <p style={{ textDecoration: "line-through", fontSize: 11 }}>
+                  {formatCurrency(product.price)}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    textDecoration: "line-through",
+                    fontSize: 11,
+                    opacity: 0,
+                  }}
+                >
+                  hidden text
+                </p>
+              )}
+              <p className={cx("price")}>
+                {formatCurrency(product.price - discount)}
+              </p>
+            </>
           }
         />
         <div className={cx("bottom")}>

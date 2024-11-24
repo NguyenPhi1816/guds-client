@@ -40,6 +40,8 @@ export const getCategoryBySlug = async (
     );
     const data: CategoryBySlugResponse | ErrorResponse = await response.json();
 
+    console.log(data);
+
     if ("error" in data) {
       throw new Error(data.message);
     }

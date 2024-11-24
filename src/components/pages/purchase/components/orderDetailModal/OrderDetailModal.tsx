@@ -17,6 +17,7 @@ import {
   Grid,
   Table,
   Divider,
+  Space,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { formatDate } from "@/formater/DateFormater";
@@ -42,6 +43,34 @@ const OrderDetailModal: React.FC<IOrderDetailModal> = ({
   const handleCancel = () => {
     onCancel();
   };
+
+  const totalPrice = data.orderDetails.reduce(
+    (prev, curr) => prev + curr.price * curr.quantity,
+    0
+  );
+
+  const productDiscount = data.orderDetails.reduce((prev, orderDetail) => {
+    let discount = 0;
+    if (orderDetail.discount && orderDetail.discount.type === "PERCENTAGE") {
+      discount = (orderDetail.discount.value / 100) * orderDetail.price;
+    } else if (orderDetail.discount && orderDetail.discount.type === "FIXED") {
+      discount = orderDetail.discount.value;
+    }
+    return prev + discount;
+  }, 0);
+
+  let orderVoucher = 0;
+  if (data.voucher) {
+    if (data.voucher.type === "PERCENTAGE") {
+      orderVoucher = (data.voucher.value / 100) * totalPrice;
+    } else if (data.voucher.type === "FIXED") {
+      orderVoucher = data.voucher.value;
+    }
+
+    if (orderVoucher > data.voucher.maxDiscountValue) {
+      orderVoucher = data.voucher.maxDiscountValue;
+    }
+  }
 
   return (
     data && (
@@ -165,6 +194,21 @@ const OrderDetailModal: React.FC<IOrderDetailModal> = ({
             )}
           />
         </div>
+
+        <Card title="Giá trị đơn hàng" style={{ marginBottom: 16 }}>
+          <Flex vertical gap={16}>
+            {productDiscount > 0 && (
+              <Text>Giảm giá sản phẩm: -{formatCurrency(productDiscount)}</Text>
+            )}
+            {orderVoucher > 0 && (
+              <Text>Giảm giá đơn hàng: -{formatCurrency(orderVoucher)}</Text>
+            )}
+            <Text strong className={cx("total")}>
+              Tổng cộng:{" "}
+              {formatCurrency(totalPrice - productDiscount - orderVoucher)}
+            </Text>
+          </Flex>
+        </Card>
 
         <Descriptions
           title="Thông tin thanh toán"
