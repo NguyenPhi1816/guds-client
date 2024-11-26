@@ -288,8 +288,11 @@ const CheckoutPage: React.FC = () => {
     } else {
       prev = prev + item.discount.value;
     }
+    console.log(prev);
     return prev;
   }, 0);
+
+  totalDiscount = totalDiscount ? totalDiscount : 0;
 
   let totalPrice = data.reduce(
     (acc, item) => acc + item.price * item.quantity,
