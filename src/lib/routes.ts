@@ -10,6 +10,7 @@ export const PUBLIC_ROUTES = [
   "/verify-otp",
   "/forgot-password",
   "/change-password",
+  "/blog",
 ];
 export const DEFAULT_REDIRECT = "/login";
 export const REFRESH_TOKEN_REDIRECT = "/refresh-token";

@@ -4,16 +4,18 @@ import Link from "next/link";
 import { CategoryProduct, CategoryResponse } from "@/types/category";
 import React from "react";
 import { ProductVariant } from "@/types/product";
+import { Blog } from "@/types/blog";
+import BlogCard from "./Blog";
 
 const { Title } = Typography;
 
-interface IProductCategory {
+interface IBlogCategory {
   title: string;
   href: string;
-  data: ProductVariant[] | CategoryProduct[];
+  data: Blog[];
 }
 
-const ProductCategory: React.FC<IProductCategory> = ({ title, href, data }) => {
+const BlogCategory: React.FC<IBlogCategory> = ({ title, href, data }) => {
   return (
     <div style={{ marginTop: "1rem" }}>
       <Flex
@@ -29,11 +31,11 @@ const ProductCategory: React.FC<IProductCategory> = ({ title, href, data }) => {
         </Link>
       </Flex>
       <List
-        grid={{ gutter: 16, column: 5 }}
+        grid={{ gutter: 16, column: 4 }}
         dataSource={data}
         renderItem={(item) => (
           <List.Item>
-            <ProductCard product={item} />
+            <BlogCard data={item} />
           </List.Item>
         )}
       />
@@ -41,4 +43,4 @@ const ProductCategory: React.FC<IProductCategory> = ({ title, href, data }) => {
   );
 };
 
-export default ProductCategory;
+export default BlogCategory;

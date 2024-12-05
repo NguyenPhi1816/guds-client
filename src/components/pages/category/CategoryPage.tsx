@@ -10,7 +10,7 @@ import {
 } from "@/services/category";
 import { CATEGORY_BY_SLUG_QUERY_KEY } from "@/services/queryKeys";
 import { useQuery } from "@tanstack/react-query";
-import { List, Typography } from "antd";
+import { Flex, List, Typography } from "antd";
 import { useParams } from "next/navigation";
 import CustomBreadcrumb from "@/components/customBreadcrumb";
 import LoadingPage from "../loadingPage";
@@ -79,8 +79,6 @@ const CategoryPage = () => {
     return <ErrorPage />;
   }
 
-  console.log(data);
-
   if (data) {
     return (
       <PageWrapper>
@@ -97,9 +95,10 @@ const CategoryPage = () => {
               : []
           }
         />
-        <Title>{data.name}</Title>
-        <Text style={{ color: "var(--grey)" }}>{data.description}</Text>
         <Title level={3}>Sản phẩm trong danh mục {data.name}</Title>
+        <Flex style={{ padding: "0 1rem", textAlign: "justify" }}>
+          <Text style={{ color: "var(--grey)" }}>{data.description}</Text>
+        </Flex>
         <ProductFilter
           orderBy={orderBy}
           onOrderByChange={(value) => setOrderBy(value)}

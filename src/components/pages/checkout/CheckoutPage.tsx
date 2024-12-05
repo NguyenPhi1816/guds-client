@@ -449,7 +449,9 @@ const CheckoutPage: React.FC = () => {
                     <Text strong>Tổng cộng:</Text>
                     <Text strong>
                       {formatCurrency(
-                        totalPrice - totalDiscount - appliedVoucherValue
+                        totalPrice - totalDiscount - appliedVoucherValue < 0
+                          ? 0
+                          : totalPrice - totalDiscount - appliedVoucherValue
                       )}
                     </Text>
                   </Row>

@@ -120,7 +120,7 @@ const ProductReview: React.FC<IProductReview> = ({ slug, averageRating }) => {
             </Flex>
           </Flex>
         )}
-        {data && data.reviews.length > 0 ? (
+        {data && data.reviews && data.reviews.length > 0 ? (
           <>
             <Space direction="vertical" size={"large"} className={cx("review")}>
               {data.reviews.map((item) => (

@@ -135,7 +135,9 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
                 </p>
               )}
               <p className={cx("price")}>
-                {formatCurrency(product.price - discount)}
+                {formatCurrency(
+                  product.price - discount < 0 ? 0 : product.price - discount
+                )}
               </p>
             </>
           }

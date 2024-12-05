@@ -413,7 +413,13 @@ const CartPage: React.FC = () => {
             <Divider />
             <Row className={cx("totalRow")}>
               <Text strong>Tổng cộng:</Text>
-              <Text strong>{formatCurrency(totalPrice - totalDiscount)}</Text>
+              <Text strong>
+                {formatCurrency(
+                  totalPrice - totalDiscount < 0
+                    ? 0
+                    : totalPrice - totalDiscount
+                )}
+              </Text>
             </Row>
             <Divider />
             <Button

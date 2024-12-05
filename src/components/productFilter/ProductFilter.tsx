@@ -49,8 +49,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   return (
     <div
       style={{
+        marginTop: "1rem",
         marginBottom: "1rem",
-        padding: "1rem",
+        padding: "0.5rem 1rem",
         backgroundColor: "var(--light-grey)",
         borderRadius: "0.5rem",
       }}
@@ -91,7 +92,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           <Text>Khoảng giá</Text>
           <InputNumber
             size="large"
-            placeholder="From"
+            placeholder="Giá từ"
             prefix={"₫"}
             min={0}
             style={{ width: "125px" }}
@@ -106,7 +107,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           <MinusOutlined />
           <InputNumber
             size="large"
-            placeholder="To"
+            placeholder="Đến giá"
             prefix={"₫"}
             min={0}
             style={{ width: "125px" }}

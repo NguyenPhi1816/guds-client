@@ -65,3 +65,28 @@ export const searchProductByName = async (
     throw error;
   }
 };
+
+export const getRecommendProduct = async (): Promise<ProductVariant[]> => {
+  try {
+    const accessToken = await getAccessToken();
+    const response = await fetch(
+      `${api}/recommend-products`,
+      accessToken
+        ? {
+            headers: {
+              Authorization: "Bearer " + accessToken,
+            },
+          }
+        : {}
+    );
+    const data: ProductVariant[] | ErrorResponse = await response.json();
+
+    if ("error" in data) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

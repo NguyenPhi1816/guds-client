@@ -44,6 +44,8 @@ const ProductPage = () => {
     return <ErrorPage />;
   }
 
+  console.log(data);
+
   if (slug && spid && data) {
     return (
       <PageWrapper>

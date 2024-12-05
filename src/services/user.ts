@@ -60,3 +60,61 @@ export const updateProfile = async (requestBody: UpdateProfileRequest) => {
     throw error;
   }
 };
+
+export const getUserSearchRecommend = async () => {
+  try {
+    let fetcher = fetch(`${api}/users/get-user-search-recommend`, {
+      method: "GET",
+    });
+
+    const myAccessToken = await getAccessToken();
+    if (myAccessToken) {
+      fetcher = fetch(`${api}/users/get-user-search-recommend`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + myAccessToken,
+        },
+      });
+    }
+
+    const res = await fetcher;
+
+    const result:
+      | { history: string[]; popularKeywords: string[] }
+      | ErrorResponse = await res.json();
+
+    if ("error" in result) {
+      throw new Error(result.message);
+    }
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getRelatedSearchKeyword = async (keyword: string) => {
+  try {
+    const res = await fetch(
+      `${api}/users/get-related-search-keywords?q=${keyword}`,
+      {
+        method: "GET",
+      }
+    );
+
+    const result: string[] | ErrorResponse = await res.json();
+
+    if ("error" in result) {
+      throw new Error(result.message);
+    }
+
+    const response = {
+      history: [],
+      popularKeywords: result,
+    };
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
