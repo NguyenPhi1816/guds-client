@@ -15,7 +15,7 @@ import {
   Typography,
 } from "antd";
 import { SignUpRequest, SignUpResponse } from "@/types/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import PageWrapper from "@/components/wrapper/PageWrapper";
 import Link from "next/link";
@@ -34,6 +34,17 @@ export default function Login() {
   const router = useRouter();
   const [address, setAddress] = useState<string>("");
   const message = useGlobalMessage();
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_GUDS_API}/recommend-products`
+      );
+      const profile = await res.json();
+      console.log(profile);
+    };
+    fetcher();
+  }, []);
 
   const signUpMutation = useMutation({
     mutationFn: (request: SignUpRequest) => signUp(request),
