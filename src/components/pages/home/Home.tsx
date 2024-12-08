@@ -61,7 +61,7 @@ const HomePage = () => {
           />
         )}
 
-        {/* <div style={{ marginTop: "2rem" }}>
+        <div style={{ marginTop: "2rem" }}>
           {data &&
             data.map(
               (category) =>
@@ -83,7 +83,7 @@ const HomePage = () => {
               title="Bài viết mới nhất"
             />
           )}
-        </div> */}
+        </div>
       </PageWrapper>
     );
   }

@@ -491,6 +491,7 @@ const CheckoutPage: React.FC = () => {
         >
           {availableVouchers.map((voucher) => (
             <Flex
+              key={voucher.id}
               style={{ border: "1px solid var(--light-grey)", borderRadius: 8 }}
               gap={8}
             >

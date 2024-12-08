@@ -34,6 +34,7 @@ const BlogPage = () => {
       {data &&
         data.map((item) => (
           <BlogCategory
+            key={item.id}
             data={item.blogs}
             href={`/category-blog/${item.id}`}
             title={item.name}
