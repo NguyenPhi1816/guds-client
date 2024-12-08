@@ -3,6 +3,7 @@ import { FavoriteProductsResponse } from "@/types/cookie";
 import { ProductVariant } from "@/types/product";
 import { getAccessToken } from "./auth";
 import { ErrorResponse } from "@/types/error";
+import { BrandProduct } from "@/types/brand";
 
 export const getFavoriteProducts = async () => {
   try {
@@ -17,7 +18,7 @@ export const getFavoriteProducts = async () => {
 };
 
 export const setFavoriteProducts = async (
-  product: CategoryProduct | ProductVariant
+  product: CategoryProduct | ProductVariant | BrandProduct
 ) => {
   try {
     const res = await fetch("/api/cookie/favorite-products", {

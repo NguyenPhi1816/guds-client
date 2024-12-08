@@ -16,20 +16,21 @@ import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import LoadingPage from "../pages/loadingPage";
 import ErrorPage from "../pages/errorPage";
 import { useRouter } from "next/navigation";
+import { BrandProduct } from "@/types/brand";
 
 const { Meta } = Card;
 
 const cx = classNames.bind(styles);
 
 interface IProductCard {
-  product: CategoryProduct | ProductVariant;
+  product: CategoryProduct | ProductVariant | BrandProduct;
 }
 
 const ProductCard: React.FC<IProductCard> = ({ product }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [favoriteProducts, _setFavoriteProducts] = useState<
-    (CategoryProduct | ProductVariant)[]
+    (CategoryProduct | ProductVariant | BrandProduct)[]
   >([]);
   const message = useGlobalMessage();
 
