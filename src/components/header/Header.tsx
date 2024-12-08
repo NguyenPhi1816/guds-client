@@ -201,7 +201,8 @@ const AppHeader = () => {
                 </Button>
               </Flex>
             ) : (
-              sessionQuery.data.user && (
+              sessionQuery.data.user &&
+              sessionQuery.data.user.user && (
                 <Dropdown menu={{ items }} placement="bottomRight">
                   <Avatar
                     shape="circle"

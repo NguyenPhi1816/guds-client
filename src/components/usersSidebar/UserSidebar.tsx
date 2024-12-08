@@ -128,7 +128,8 @@ const UserSidebar = () => {
 
   return (
     session &&
-    session.user && (
+    session.user &&
+    session.user.user && (
       <Sider className={cx("sider")}>
         <Space align="center" style={{ padding: "0.5rem 0.75rem" }}>
           <Avatar
