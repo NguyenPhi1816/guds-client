@@ -34,10 +34,10 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
   >([]);
   const message = useGlobalMessage();
 
-  const { data, isLoading, isError } = useQuery({
-    queryFn: async () => await getFavoriteProducts(),
-    queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
-  });
+  // const { data, isLoading, isError } = useQuery({
+  //   queryFn: async () => await getFavoriteProducts(),
+  //   queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
+  // });
 
   const mutation = useMutation({
     mutationFn: () => setFavoriteProducts(product),
@@ -52,11 +52,11 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
     },
   });
 
-  useEffect(() => {
-    if (data) {
-      _setFavoriteProducts(data.data);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     _setFavoriteProducts(data.data);
+  //   }
+  // }, [data]);
 
   const handleAddToFavorite = (
     e: React.MouseEvent<HTMLElement, MouseEvent>
