@@ -53,10 +53,10 @@ const AppHeader = () => {
         queryKey: [CATEGORIES_QUERY_KEY],
         queryFn: async () => await getAllCategories(),
       },
-      {
-        queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
-        queryFn: async () => await getFavoriteProducts(),
-      },
+      // {
+      //   queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
+      //   queryFn: async () => await getFavoriteProducts(),
+      // },
       {
         queryKey: [CART_QUERY_KEY],
         queryFn: async () => await getCart(),
@@ -68,18 +68,22 @@ const AppHeader = () => {
     ],
   });
 
-  const [categoriesQuery, favoriteProductsQuery, cartQuery, sessionQuery] =
-    queries;
+  const [
+    categoriesQuery,
+    // favoriteProductsQuery,
+    cartQuery,
+    sessionQuery,
+  ] = queries;
 
   const isLoading =
     categoriesQuery.isLoading ||
-    favoriteProductsQuery.isLoading ||
+    // favoriteProductsQuery.isLoading ||
     cartQuery.isLoading ||
     sessionQuery.isLoading;
 
   const isError =
     categoriesQuery.isError ||
-    favoriteProductsQuery.isError ||
+    // favoriteProductsQuery.isError ||
     cartQuery.isError ||
     sessionQuery.isError;
 
@@ -172,7 +176,7 @@ const AppHeader = () => {
                 </Badge>
               </Button>
             </Flex>
-            <Flex align="center">
+            {/* <Flex align="center">
               <Button
                 onClick={() => router.push("/favorite")}
                 shape="circle"
@@ -191,7 +195,7 @@ const AppHeader = () => {
                   <HeartOutlined className={cx("icon")} />
                 </Badge>
               </Button>
-            </Flex>
+            </Flex> */}
             {!sessionQuery.data && sessionQuery.isLoading ? (
               <Skeleton.Avatar active className={cx("skeleton-avatar")} />
             ) : !sessionQuery.data ? (
