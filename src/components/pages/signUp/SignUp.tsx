@@ -35,17 +35,6 @@ export default function Login() {
   const [address, setAddress] = useState<string>("");
   const message = useGlobalMessage();
 
-  useEffect(() => {
-    const fetcher = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_GUDS_API}/recommend-products`
-      );
-      const profile = await res.json();
-      console.log(profile);
-    };
-    fetcher();
-  }, []);
-
   const signUpMutation = useMutation({
     mutationFn: (request: SignUpRequest) => signUp(request),
     onSuccess: async (data: SignUpResponse) => {
