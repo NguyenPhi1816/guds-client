@@ -39,8 +39,6 @@ const HomePage = () => {
     queryKey: [RECOMMENDATION_QUERY_KEY],
   });
 
-  console.log(recommendProducts);
-
   if (isLoading && blogsLoading && recommendLoading) {
     return <LoadingPage />;
   }
@@ -54,14 +52,16 @@ const HomePage = () => {
       <PageWrapper>
         <HomeCarousel />
 
-        <ProductCategory
-          key={-1}
-          title={"Sản phẩm gợi ý cho bạn"}
-          href={`/`}
-          data={recommendProducts}
-        />
+        {recommendProducts && (
+          <ProductCategory
+            key={-1}
+            title={"Sản phẩm gợi ý cho bạn"}
+            href={`/`}
+            data={recommendProducts}
+          />
+        )}
 
-        <div style={{ marginTop: "2rem" }}>
+        {/* <div style={{ marginTop: "2rem" }}>
           {data &&
             data.map(
               (category) =>
@@ -83,7 +83,7 @@ const HomePage = () => {
               title="Bài viết mới nhất"
             />
           )}
-        </div>
+        </div> */}
       </PageWrapper>
     );
   }
