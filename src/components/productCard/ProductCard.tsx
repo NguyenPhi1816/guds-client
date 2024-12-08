@@ -16,28 +16,27 @@ import { useGlobalMessage } from "@/utils/messageProvider/MessageProvider";
 import LoadingPage from "../pages/loadingPage";
 import ErrorPage from "../pages/errorPage";
 import { useRouter } from "next/navigation";
-import { BrandProduct } from "@/types/brand";
 
 const { Meta } = Card;
 
 const cx = classNames.bind(styles);
 
 interface IProductCard {
-  product: CategoryProduct | ProductVariant | BrandProduct;
+  product: CategoryProduct | ProductVariant;
 }
 
 const ProductCard: React.FC<IProductCard> = ({ product }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [favoriteProducts, _setFavoriteProducts] = useState<
-    (CategoryProduct | ProductVariant | BrandProduct)[]
+    (CategoryProduct | ProductVariant)[]
   >([]);
   const message = useGlobalMessage();
 
-  // const { data, isLoading, isError } = useQuery({
-  //   queryFn: async () => await getFavoriteProducts(),
-  //   queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
-  // });
+  const { data, isLoading, isError } = useQuery({
+    queryFn: async () => await getFavoriteProducts(),
+    queryKey: [FAVORITE_PRODUCT_QUERY_KEY],
+  });
 
   const mutation = useMutation({
     mutationFn: () => setFavoriteProducts(product),
@@ -52,11 +51,11 @@ const ProductCard: React.FC<IProductCard> = ({ product }) => {
     },
   });
 
-  // useEffect(() => {
-  //   if (data) {
-  //     _setFavoriteProducts(data.data);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data) {
+      _setFavoriteProducts(data.data);
+    }
+  }, [data]);
 
   const handleAddToFavorite = (
     e: React.MouseEvent<HTMLElement, MouseEvent>
