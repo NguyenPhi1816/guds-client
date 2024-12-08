@@ -133,12 +133,14 @@ const UserSidebar = () => {
         <Space align="center" style={{ padding: "0.5rem 0.75rem" }}>
           <Avatar
             src={
-              session.user.image ? session.user.image : fallbackUserAvatarUrl
+              session.user.user.image
+                ? session.user.user.image
+                : fallbackUserAvatarUrl
             }
-            alt={session.user.name}
+            alt={session.user.user.name}
           />
           <Text ellipsis strong>
-            {session.user.name}
+            {session.user.user.name}
           </Text>
           <Button shape="circle" type="text">
             <EditOutlined />
