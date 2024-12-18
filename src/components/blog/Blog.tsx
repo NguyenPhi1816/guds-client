@@ -48,6 +48,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ data }) => {
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                minHeight: 58,
               }}
             >
               {data.summary}
