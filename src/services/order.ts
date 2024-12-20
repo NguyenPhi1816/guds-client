@@ -42,6 +42,7 @@ export const createOrder = async (
 export const getAllOrders = async (): Promise<OrderFull[]> => {
   try {
     const accessToken = await getAccessToken();
+    console.log(accessToken);
     if (accessToken) {
       const res = await fetch(`${api}/orders/me`, {
         headers: {
