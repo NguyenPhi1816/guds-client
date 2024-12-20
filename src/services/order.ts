@@ -1,13 +1,14 @@
-"use server";
+"use client";
 import { ErrorResponse } from "@/types/error";
 import { getAccessToken } from "./auth";
-import { api } from "./api";
 import {
   CreateOrderRequest,
   CreateOrderResponse,
   OrderFull,
 } from "@/types/order";
 import { OrderStatus } from "@/constant/enum/orderStatus";
+
+const api = process.env.NEXT_PUBLIC_GUDS_API;
 
 export const createOrder = async (
   createOrderRequest: CreateOrderRequest
@@ -25,9 +26,9 @@ export const createOrder = async (
       });
       const result: CreateOrderResponse | ErrorResponse = await res.json();
 
-      // if ("error" in result) {
-      //   return { message: result.message, statusCode: result.statusCode };
-      // }
+      if ("error" in result) {
+        throw new Error(result.message);
+      }
 
       return result;
     } else {
