@@ -1,14 +1,13 @@
-"use client";
+"use server";
 import { ErrorResponse } from "@/types/error";
 import { getAccessToken } from "./auth";
+import { api } from "./api";
 import {
   CreateOrderRequest,
   CreateOrderResponse,
   OrderFull,
 } from "@/types/order";
 import { OrderStatus } from "@/constant/enum/orderStatus";
-
-const api = process.env.NEXT_PUBLIC_GUDS_API;
 
 export const createOrder = async (
   createOrderRequest: CreateOrderRequest
@@ -42,7 +41,6 @@ export const createOrder = async (
 export const getAllOrders = async (): Promise<OrderFull[]> => {
   try {
     const accessToken = await getAccessToken();
-    console.log(accessToken);
     if (accessToken) {
       const res = await fetch(`${api}/orders/me`, {
         headers: {
