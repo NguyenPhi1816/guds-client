@@ -25,9 +25,9 @@ export const createOrder = async (
       });
       const result: CreateOrderResponse | ErrorResponse = await res.json();
 
-      if ("error" in result) {
-        throw new Error(result.message);
-      }
+      // if ("error" in result) {
+      //   return { message: result.message, statusCode: result.statusCode };
+      // }
 
       return result;
     } else {
